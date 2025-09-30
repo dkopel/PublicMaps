@@ -1,18 +1,19 @@
-<apex:page controller="AccountMapController" docType="html-5.0" showHeader="false" sidebar="false" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false">
+<apex:page controller="AccountMapController" docType="html-5.0" showHeader="false" sidebar="false" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false" cache="false">
     <html>
     <head>
-        <!-- Google Tag Manager -->
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','GTM-W63V7PVF');</script>
-        <!-- End Google Tag Manager -->
+        <!-- Fix InternalDialogs error immediately -->
+        <script>
+            if (typeof InternalDialogs === 'undefined') {
+                window.InternalDialogs = {
+                    show: function() { console.log('InternalDialogs.show'); },
+                    hide: function() { console.log('InternalDialogs.hide'); }
+                };
+            }
+        </script>
         
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <title>SkinCure Accounts</title>
-        <apex:slds />
         <style>
             .main-container {
                 height: 100vh;
@@ -422,12 +423,34 @@
         </style>
         
         <script src="https://maps.googleapis.com/maps/api/js?key={!googleMapsApiKey}&libraries=places,geometry&loading=async&callback=initMap"></script>
+        
+        <script>
+            // Configure VFRemote
+            if (typeof Visualforce !== 'undefined' && Visualforce.remoting) {
+                Visualforce.remoting.timeout = 120000;
+                Visualforce.remoting.buffer = false;
+            }
+            
+            // Cross-origin support
+            try {
+                // Iframe embedding
+                if (window.self !== window.top) {
+                    console.log('Running in iframe context');
+                }
+                
+                // Cross-origin communication
+                window.addEventListener('message', function(event) {
+                    // Trusted domains
+                    console.log('Received message from:', event.origin);
+                }, false);
+                
+            } catch (e) {
+                console.log('Cross-origin restrictions detected:', e.message);
+            }
+        </script>
     </head>
     
     <body>
-        <!-- Google Tag Manager (noscript) -->
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W63V7PVF"
-        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- End Google Tag Manager (noscript) -->
         
         <div class="main-container">
@@ -509,7 +532,7 @@
                         url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
                                 <!-- Standard marker shape -->
-                                <path fill="#398E8C" stroke="#fff" stroke-width="2" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                <path fill="#398E8C" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                                 <!-- SkinCure logo as a simple circle for now -->
                                 <circle cx="12" cy="9" r="5" fill="#fff" stroke="#398E8C" stroke-width="1"/>
                                 <text x="12" y="13" text-anchor="middle" font-family="Arial" font-size="8" fill="#398E8C" font-weight="bold">G</text>
@@ -659,6 +682,13 @@
                 console.log('Loading accounts from server...');
                 showLoadingMessage('Loading accounts...');
                 
+                // Check if Visualforce is available (may not be in iframe context)
+                if (typeof Visualforce === 'undefined' || !Visualforce.remoting) {
+                    console.error('Visualforce remoting not available - iframe context issue');
+                    // You could add fallback data loading here if needed
+                    return;
+                }
+                
                 Visualforce.remoting.Manager.invokeAction(
                     '{!$RemoteAction.AccountMapController.getAccountData}',
                     postalCode,
@@ -733,6 +763,7 @@
                             console.error('Event status:', event.status);
                             console.error('Event message:', event.message);
                             console.error('Event where:', event.where);
+                            
                             showError('Error loading accounts: ' + event.message + (event.where ? ' (' + event.where + ')' : ''));
                         }
                     },
@@ -772,6 +803,7 @@
             function hideLoadingMessage() {
                 console.log('Loading complete');
             }
+            
             
             function showError(message) {
                 console.error('ERROR:', message);

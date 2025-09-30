@@ -1,4 +1,4 @@
-public without sharing class AccountMapController {
+global without sharing class AccountMapController {
 
     // Cache for all accounts
     private static List<Account> allAccountsCache;
@@ -154,7 +154,7 @@ public without sharing class AccountMapController {
     // Remote actions
 
     @RemoteAction
-    public static String getZipCodeCentroid(String zipCode) {
+    global static String getZipCodeCentroid(String zipCode) {
         if (String.isBlank(zipCode)) {
             return JSON.serialize(new Map<String, Object>{
                 'success' => false,
@@ -227,7 +227,7 @@ public without sharing class AccountMapController {
     }
 
     @RemoteAction
-    public static String getAccountData(String postalCodeFilter, String distanceFilter) {
+    global static String getAccountData(String postalCodeFilter, String distanceFilter) {
         List<Account> listToUse =
             (String.isNotBlank(postalCodeFilter) && String.isNotBlank(distanceFilter))
             ? performRadialSearch(postalCodeFilter, distanceFilter)
@@ -329,5 +329,5 @@ public without sharing class AccountMapController {
     @TestVisible
 		static void setAccountsCacheForTest(List<Account> records) {
     	allAccountsCache = records;
-}
+    }
 }
