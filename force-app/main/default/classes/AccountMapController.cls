@@ -11,9 +11,6 @@ public without sharing class AccountMapController {
     private String apiKey;
     public String googleMapsApiKey { 
         get {
-            if (apiKey == null) {
-                setApiKey();
-            }
             return apiKey;
         }
         set {
@@ -85,13 +82,6 @@ public without sharing class AccountMapController {
         }
         accounts = performRadialSearchInstance(postalCode, selectedDistance);
         accountsJSON = JSON.serialize(createOptimizedMapData());
-        if (accounts.isEmpty()) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.INFO,
-                'No accounts found within ' + selectedDistance + ' miles of ' + postalCode + '.'));
-        } else {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM,
-                accounts.size() + ' account(s) found within ' + selectedDistance + ' miles of ' + postalCode));
-        }
     }
 
     private List<Map<String, Object>> createOptimizedMapData() {
@@ -327,7 +317,5 @@ public without sharing class AccountMapController {
         postalCode = '';
         selectedDistance = '';
         loadAllAccounts();
-        ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.INFO,
-            'Search reset. Showing all ' + totalAccounts + ' locations.'));
     }
 }

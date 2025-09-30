@@ -1764,7 +1764,10 @@ public class AccountMapControllerTest {
             return;
         }
         
-        // Create many accounts to test performance and coverage
+        // Test HTTP callout FIRST (before any DML operations)
+        String result = AccountMapController.getAccountData('70112', '1000');
+        
+        // Now create test data for verification
         List<Account> testAccounts = new List<Account>();
         for (Integer i = 0; i < 50; i++) {
             testAccounts.add(new Account(
@@ -1795,7 +1798,6 @@ public class AccountMapControllerTest {
         }
         update testAccounts;
         
-        String result = AccountMapController.getAccountData('70112', '1000');
         Test.stopTest();
         
         System.assertNotEquals(null, result, 'Result should not be null');
