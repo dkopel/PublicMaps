@@ -599,66 +599,10 @@
                         }
                     });
                     
-                    // Add zoom change listeners
-                    console.log('Adding zoom event listeners...');
-                    
-                    // Zoom changed event
-                    map.addListener('zoom_changed', function() {
-                        console.log('🔍 ZOOM_CHANGED event fired, zoom:', map.getZoom());
-                        forceUpdateSidebar();
-                    });
-                    
-                    // Bounds changed event  
-                    map.addListener('bounds_changed', function() {
-                        console.log('📍 BOUNDS_CHANGED event fired, zoom:', map.getZoom());
-                        forceUpdateSidebar();
-                    });
-                    
-                    // Idle event
+                    // Simple zoom handling - only update on idle (like MarketingMap)
                     map.addListener('idle', function() {
-                        console.log('💤 MAP_IDLE event fired, zoom:', map.getZoom());
-                        forceUpdateSidebar();
+                        updateSidebarWithVisibleAccounts();
                     });
-                    
-                    // Drag end event
-                    map.addListener('dragend', function() {
-                        console.log('👆 MAP_DRAGEND event fired - map was panned');
-                        forceUpdateSidebar();
-                    });
-                    
-                    // Add center_changed event
-                    map.addListener('center_changed', function() {
-                        console.log('🎯 CENTER_CHANGED event fired');
-                        forceUpdateSidebar();
-                    });
-                    
-                    // Store the last zoom level to detect changes
-                    window.lastZoomLevel = map.getZoom();
-                    console.log('Initial zoom level stored:', window.lastZoomLevel);
-                    
-                    // Add keyboard zoom controls
-
-                    
-                    // Add wheel zoom detection with forced sidebar update
-                    var mapElement = document.getElementById('map');
-                    if (mapElement) {
-                        mapElement.addEventListener('wheel', function(event) {
-                            // Small delay to let Google Maps process the zoom
-                            setTimeout(function() {
-                                console.log('🖱️ Mouse wheel zoom detected, current zoom:', map.getZoom());
-                                // Force sidebar update for mouse wheel zoom
-                                forceUpdateSidebar();
-                            }, 200);
-                        });
-                    }
-                    
-                    // Add a more aggressive periodic check as ultimate fallback
-                    setInterval(function() {
-                        if (map && markers && markers.length > 0) {
-                            console.log('🔄 Periodic check - forcing sidebar update');
-                            forceUpdateSidebar();
-                        }
-                    }, 3000); // Check every 3 seconds
                     
                     // Load all accounts on initial load (after map is ready)
                     console.log('Loading accounts after map initialization...');
@@ -821,11 +765,8 @@
             
             // New function that shows only visible accounts
             function updateSidebarWithVisibleAccounts() {
-                console.log('🔄 updateSidebarWithVisibleAccounts called');
-                
                 var sidebar = document.querySelector('.account-list');
                 if (!sidebar) {
-                    console.error('Could not find sidebar element');
                     return;
                 }
                 
@@ -880,27 +821,8 @@
                 sidebar.innerHTML = html;
             }
             
-            // Keep the old function for backward compatibility
+            // Simple sidebar update function
             function updateSidebar() {
-                updateSidebarWithVisibleAccounts();
-            }
-            
-            // Handle zoom changes - now updates IMMEDIATELY on EVERY change
-            function handleZoomChange() {
-                var currentZoom = map.getZoom();
-                console.log('🔄 Handling zoom change, current zoom:', currentZoom);
-                
-                // Always update, regardless of zoom change amount
-                window.lastZoomLevel = currentZoom;
-                
-                // Update immediately - no debouncing
-                console.log('⚡ Immediately updating sidebar with visible accounts...');
-                updateSidebarWithVisibleAccounts();
-            }
-            
-            // Force update function that bypasses all checks
-            function forceUpdateSidebar() {
-                console.log('💪 FORCE updating sidebar');
                 updateSidebarWithVisibleAccounts();
             }
             
@@ -935,25 +857,17 @@
                     }
                 });
                 
-                console.log('📍 Found', visibleAccounts.length, 'accounts visible in current viewport out of', markers.length, 'total');
                 return visibleAccounts;
             }
             
             // Function to determine if sidebar list should be shown - zoom 5+
             function shouldShowSidebarList() {
                 if (!map || !markers) {
-                    console.log('❌ shouldShowSidebarList: no map or markers');
                     return false;
                 }
                 
                 var zoom = map.getZoom();
-                console.log('🔍 Sidebar check - Zoom:', zoom, '(need 5+)');
-                
-                // Show list if zoom is 5 or higher
-                var shouldShow = zoom >= 5;
-                
-                console.log('📋 Should show sidebar list:', shouldShow);
-                return shouldShow;
+                return zoom >= 5;
             }
             
             
@@ -976,17 +890,9 @@
                 var validMarkers = 0;
                 
                 markers.forEach(function(markerData, index) {
-                    // Debug: Log first few marker data objects
-                    if (index < 3) {
-                        console.log('🔍 Marker data sample:', markerData);
-                        console.log('🔍 Has lat:', !!markerData.lat, 'value:', markerData.lat);
-                        console.log('🔍 Has lng:', !!markerData.lng, 'value:', markerData.lng);
-                    }
-                    
                     // Validate marker data
                     if (!markerData.lat || !markerData.lng || 
                         isNaN(parseFloat(markerData.lat)) || isNaN(parseFloat(markerData.lng))) {
-                        console.warn('❌ Invalid marker data (index', index, '):', markerData);
                         return;
                     }
                     
@@ -995,13 +901,10 @@
                         lng: parseFloat(markerData.lng)
                     };
                     
-                    console.log('Creating marker for:', markerData.name, position);
-                    
                     var marker = new google.maps.Marker({
                         position: position,
                         map: map,
                         title: markerData.name,
-                        animation: google.maps.Animation.DROP,
                         icon: customIcon
                     });
                     
@@ -1052,19 +955,8 @@
                 console.log('   - Invalid markers skipped:', markers.length - validMarkers);
                 console.log('   - Google markers array length:', googleMarkers.length);
                 
-                // Fit map to show all markers
-                if (validMarkers > 0) {
-                    map.fitBounds(bounds);
-                    
-                    // Ensure reasonable zoom level for single markers
-                    google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
-                        if (map.getZoom() > 15 && googleMarkers.length === 1) {
-                            map.setZoom(15);
-                        } else if (map.getZoom() < 4) {
-                            map.setZoom(4);
-                        }
-                    });
-                }
+                // Don't auto-fit bounds to prevent map shifting
+                // Map will stay at the initial center and zoom level
             }
             
             function clearMarkers() {
