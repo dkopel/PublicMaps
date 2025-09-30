@@ -3,7 +3,7 @@ public class MarketingMapControllerTest {
 
     @testSetup
     static void setup() {
-        // Create test accounts first (following AccountMapControllerTest pattern)
+        // Create test accounts
         List<Account> testAccounts = new List<Account>();
         
         testAccounts.add(new Account(
@@ -35,7 +35,7 @@ public class MarketingMapControllerTest {
         
         insert testAccounts;
         
-        // Create geocodes for the accounts
+        // Create geocodes
         List<geopointe__Geocode__c> geocodes = new List<geopointe__Geocode__c>();
         geocodes.add(new geopointe__Geocode__c(
             geopointe__Map_Object__c = 'Account',
@@ -60,7 +60,7 @@ public class MarketingMapControllerTest {
         
         insert geocodes;
         
-        // Update accounts to link to geocodes
+        // Link accounts to geocodes
         List<Account> accountsToUpdate = new List<Account>();
         for (Integer i = 0; i < 3; i++) {
             accountsToUpdate.add(new Account(
@@ -70,7 +70,7 @@ public class MarketingMapControllerTest {
         }
         update accountsToUpdate;
         
-        // Create projects linked to the accounts
+        // Create projects
         List<Project__c> projects = new List<Project__c>();
         projects.add(new Project__c(
             Name = 'Pass Project 1',
@@ -93,10 +93,9 @@ public class MarketingMapControllerTest {
         insert projects;
     }
     
-    // Helper to query projects with complete geocode data
+    // Query projects with geocode data
     private static List<Project__c> getMockProjectsWithGeocode() {
-        // Query with the EXACT same field path as the controller uses
-        // Include the intermediate lookup field to help Salesforce traverse relationships
+        // Query with same field path as controller
         List<Project__c> projects = [
             SELECT Id, Name, Employee_Placement_Type__c,
                    Account__r.ShippingStreet, 
@@ -128,10 +127,10 @@ public class MarketingMapControllerTest {
         return projects;
     }
 
-    // --- Constructor & serialization
+    // Constructor tests
     @isTest
     static void testConstructorAndSerialization() {
-        // First, verify test data exists
+        // Verify test data
         List<Project__c> allProjects = [SELECT Id, Name, Account__c, Account__r.geopointe__Geocode__c FROM Project__c];
         System.debug('Total projects in test: ' + allProjects.size());
         
@@ -141,11 +140,10 @@ public class MarketingMapControllerTest {
         List<geopointe__Geocode__c> allGeocodes = [SELECT Id, geopointe__Latitude__c, geopointe__Longitude__c, geopointe__Parent_Record_Id2__c FROM geopointe__Geocode__c];
         System.debug('Total geocodes in test: ' + allGeocodes.size());
         
-        // Bypass RecordType filter for tests since we don't set RecordType in test data
+        // Bypass RecordType filter for tests
         MarketingMapController.BYPASS_RECORDTYPE_FILTER = true;
         
-        // Don't inject - let the actual query run in test context
-        // This way Salesforce properly populates the relationship fields
+        // Use actual query in test context
         MarketingMapController.INJECT_RECORDS = null;
         
         MarketingMapController ctrl = new MarketingMapController();
@@ -158,8 +156,7 @@ public class MarketingMapControllerTest {
         Object parsed = JSON.deserializeUntyped(ctrl.projectJSON);
         System.assert(parsed instanceof List<Object>, 'Constructor JSON should deserialize to a List');
         
-        // Note: Due to Salesforce limitations with nested relationship queries in test context,
-        // the serialized records might be 0 even though projects were queried successfully.
+        // Note: May return 0 due to test context limitations
         // The important thing is that the code doesn't crash and produces valid JSON.
         List<Object> rows = (List<Object>)parsed;
         System.assert(rows.size() >= 0, 'Should have a valid list (may be empty in test context)');

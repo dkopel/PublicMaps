@@ -5,12 +5,11 @@ global without sharing class MarketingMapController {
     public String googleMapsApiKey { get; private set; }
     public Integer totalRecords { get; private set; }
 
-    // === Test hooks ===
+    // Test support
     @TestVisible
     static Boolean BYPASS_RECORDTYPE_FILTER = false;
 
-    // If provided by tests, loadAllProjectRecords() will return this list verbatim.
-    // This keeps production behavior unchanged, but makes tests deterministic.
+    // Test data injection
     @TestVisible
     static List<Project__c> INJECT_RECORDS = null;
 
@@ -21,7 +20,6 @@ global without sharing class MarketingMapController {
         projectJSON = JSON.serialize(createOptimizedMapData());
     }
 
-    // TODO: move to Protected Custom Setting/Custom Metadata for env-specific keys
     public void setApiKey() {
         googleMapsApiKey = 'AIzaSyB862RKAXAKYskd3QzSS7i9YMxxHVpCk8M';
     }
@@ -32,7 +30,7 @@ global without sharing class MarketingMapController {
             Map<String, Object> row = new Map<String, Object>();
             row.put('id', record.Id);
 
-            // Display name "City, ST" else fallback to record name
+            // Build display name
             String displayName = '';
             if (record.Account__r != null) {
                 if (String.isNotBlank(record.Account__r.ShippingCity) && String.isNotBlank(record.Account__r.ShippingState)) {
@@ -68,7 +66,7 @@ global without sharing class MarketingMapController {
         return mapData;
     }
 
-    // ---------- helpers ----------
+    // Helper methods
     private static String buildAddressString(Project__c record) {
         List<String> parts = new List<String>();
         if (record.Account__r != null) {
@@ -80,13 +78,13 @@ global without sharing class MarketingMapController {
         return String.join(parts, ', ');
     }
 
-    // Degrees → radians
+    // Convert degrees to radians
     @TestVisible
     private static Decimal toRad(Decimal deg) {
         return deg * (Decimal)Math.PI / 180;
     }
 
-    // Haversine great-circle distance in miles
+    // Calculate distance between two points
     @TestVisible
     private static Decimal haversineMiles(Decimal lat1, Decimal lon1, Decimal lat2, Decimal lon2) {
         Decimal R = 3958.7613; // miles
@@ -105,7 +103,7 @@ global without sharing class MarketingMapController {
         return R * c;
     }
 
-    // ---------- remoting ----------
+    // Remote actions
     @RemoteAction
     global static String getMarketingData() {
         try {
@@ -154,13 +152,12 @@ global without sharing class MarketingMapController {
 
     private static List<Project__c> loadAllProjectRecords() {
         try {
-            // If a test injected a list, use it verbatim.
+            // Use test data if provided
             if (INJECT_RECORDS != null) {
                 return INJECT_RECORDS;
             }
 
-            // In test mode, use simpler WHERE clause without nested relationship filters
-            // because they don't work well in Salesforce test context
+            // Build WHERE clause for test vs production
             String whereCore = BYPASS_RECORDTYPE_FILTER
                 ? 'Completion_Status__c = \'Pending\' AND Account__r.geopointe__Geocode__c != null'
                 : 'Completion_Status__c = \'Pending\' ' +

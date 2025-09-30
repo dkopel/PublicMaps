@@ -263,8 +263,7 @@
         <script src="https://maps.googleapis.com/maps/api/js?key={!googleMapsApiKey}&libraries=places,geometry&loading=async&callback=initMap"></script>
         
         <script>
-            // Add this script to fix InternalDialogs error
-            // Ensure InternalDialogs is available
+            // Fix InternalDialogs error
             if (typeof InternalDialogs === 'undefined') {
                 window.InternalDialogs = {
                     show: function() { console.log('InternalDialogs.show'); },
@@ -272,22 +271,22 @@
                 };
             }
             
-            // Configure VFRemote for cross-origin and iframe support
+            // Configure VFRemote
             if (typeof Visualforce !== 'undefined' && Visualforce.remoting) {
                 Visualforce.remoting.timeout = 120000;
                 Visualforce.remoting.buffer = false;
             }
             
-            // Iframe and cross-origin support
+            // Cross-origin support
             try {
-                // Allow iframe embedding
+                // Iframe embedding
                 if (window.self !== window.top) {
                     console.log('Running in iframe context');
                 }
                 
-                // Handle cross-origin communication
+                // Cross-origin communication
                 window.addEventListener('message', function(event) {
-                    // Add trusted domains here if needed
+                    // Trusted domains
                     console.log('Received message from:', event.origin);
                 }, false);
                 
@@ -328,7 +327,7 @@
             var markersByGroup = {}; // Store markers by placement type group
             var hiddenGroups = new Set(); // Track hidden groups
             
-            // Dynamic color assignment - colors will be assigned in order as unique placement types are found
+            // Dynamic color assignment
             var availableColors = [
                 '#dc3545', // Red (value 1)
                 '#007bff', // Blue (value 2)  
@@ -345,19 +344,19 @@
             var defaultColor = '#6c757d'; // Gray for unknown/null
             
             function assignColorToPlacementType(placementType) {
-                // Handle null/empty values
+                // Handle null values
                 if (!placementType || placementType === '' || placementType === null || placementType === undefined) {
                     placementType = 'Unknown';
                 }
                 
-                // If we haven't seen this placement type before, assign it a color
+                // Assign color to new placement type
                 if (!placementTypeToColorMap[placementType]) {
                     if (uniquePlacementTypes.length < availableColors.length) {
                         var colorIndex = uniquePlacementTypes.length;
                         placementTypeToColorMap[placementType] = availableColors[colorIndex];
                         uniquePlacementTypes.push(placementType);
                     } else {
-                        // If we run out of colors, use default
+                        // Use default color
                         placementTypeToColorMap[placementType] = defaultColor;
                     }
                 }
@@ -369,7 +368,7 @@
                 return assignColorToPlacementType(placementType);
             }
 
-            // Make initMap globally accessible for Google Maps callback
+            // Initialize map
             window.initMap = function() {
                 try {
                     
@@ -403,7 +402,7 @@
                     if (totalCountElement) totalCountElement.textContent = 'Loading...';
                     if (legendListElement) legendListElement.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">Loading positions...</div>';
                     
-                    // Load all project records on initial load
+                    // Load project records
                     loadMarketingFromServer();
                     
                 } catch(error) {

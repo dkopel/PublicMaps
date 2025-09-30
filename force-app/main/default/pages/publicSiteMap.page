@@ -492,12 +492,12 @@
                 });
             }
 
-            // Make initMap globally accessible for Google Maps callback
+            // Initialize map
             window.initMap = function() {
                 try {
                     console.log('Initializing map...');
                     
-                    // Initialize custom icon after Google Maps is loaded
+                    // Initialize custom icon
                     customIcon = {
                         url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
@@ -516,7 +516,7 @@
                         return;
                     }
                     
-                    // Check if we're on mobile
+                    // Check mobile device
                     var isMobile = window.innerWidth <= 768;
                     
                     map = new google.maps.Map(mapElement, {
@@ -557,7 +557,7 @@
                     
                     infoWindow = new google.maps.InfoWindow();
                     
-                    // Add click listener to map to close info window when clicking elsewhere
+                    // Close info window on map click
                     map.addListener('click', function() {
                         if (currentInfoWindow) {
                             currentInfoWindow.close();
@@ -565,28 +565,28 @@
                         }
                     });
                     
-                    // Add multiple zoom change listeners to ensure it works
+                    // Add zoom change listeners
                     console.log('Adding zoom event listeners...');
                     
-                    // Primary: zoom_changed event
+                    // Zoom changed event
                     map.addListener('zoom_changed', function() {
                         console.log('🔍 ZOOM_CHANGED event fired, zoom:', map.getZoom());
                         forceUpdateSidebar();
                     });
                     
-                    // Backup: bounds_changed event  
+                    // Bounds changed event  
                     map.addListener('bounds_changed', function() {
                         console.log('📍 BOUNDS_CHANGED event fired, zoom:', map.getZoom());
                         forceUpdateSidebar();
                     });
                     
-                    // Alternative: idle event (when map stops moving/zooming)
+                    // Idle event
                     map.addListener('idle', function() {
                         console.log('💤 MAP_IDLE event fired, zoom:', map.getZoom());
                         forceUpdateSidebar();
                     });
                     
-                    // Add dragend event for when user pans the map
+                    // Drag end event
                     map.addListener('dragend', function() {
                         console.log('👆 MAP_DRAGEND event fired - map was panned');
                         forceUpdateSidebar();

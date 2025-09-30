@@ -1,6 +1,6 @@
 public without sharing class AccountMapController {
 
-    // Static cache for all accounts - loaded once, filtered in memory
+    // Cache for all accounts
     private static List<Account> allAccountsCache;
     
     public String postalCode { get; set; }
@@ -30,9 +30,7 @@ public without sharing class AccountMapController {
         totalAccounts = 0;
     }
 
-    // TODO: move to Protected Custom Setting/Custom Metadata for env-specific keys
     public void setApiKey() {
-        // <--- replace with your key source when you're ready
         apiKey = 'AIzaSyB862RKAXAKYskd3QzSS7i9YMxxHVpCk8M';
     }
 
@@ -48,7 +46,7 @@ public without sharing class AccountMapController {
         };
     }
 
-    // ONE SOQL query to load all accounts into cache
+    // Load accounts into cache
     private static void ensureAccountsCacheLoaded() {
         if (allAccountsCache == null) {
             allAccountsCache = [
@@ -74,7 +72,7 @@ public without sharing class AccountMapController {
     
     public void loadAllAccounts() {
         ensureAccountsCacheLoaded();
-        accounts = allAccountsCache; // Use cached accounts
+        accounts = allAccountsCache;
         totalAccounts = accounts.size();
         accountsJSON = JSON.serialize(createOptimizedMapData());
     }
@@ -112,7 +110,7 @@ public without sharing class AccountMapController {
             if (String.isNotBlank(acc.Phone)) row.put('phone', acc.Phone);
             if (String.isNotBlank(acc.Website)) row.put('website', acc.Website);
 
-            // Only use GeoPointe coordinates - no fallback to Shipping coordinates
+            // Use GeoPointe coordinates
             if (acc.geopointe__Geocode__r != null &&
                 acc.geopointe__Geocode__r.geopointe__Latitude__c != null &&
                 acc.geopointe__Geocode__r.geopointe__Longitude__c != null) {
@@ -124,7 +122,7 @@ public without sharing class AccountMapController {
         return mapData;
     }
 
-    // ---------- helpers (static so @RemoteAction can use them) ----------
+    // Helper methods
 
     private static String buildAddressString(Account acc) {
         List<String> parts = new List<String>();
@@ -135,12 +133,12 @@ public without sharing class AccountMapController {
         return String.join(parts, ', ');
     }
 
-    // Degrees → radians (Apex uses Math.PI as a constant — no parentheses)
+    // Convert degrees to radians
     private static Decimal toRad(Decimal deg) {
         return deg * (Decimal)Math.PI / 180;
     }
 
-    // Haversine great-circle distance in miles
+    // Calculate distance between two points
     private static Decimal haversineMiles(Decimal lat1, Decimal lon1, Decimal lat2, Decimal lon2) {
         Decimal R = 3958.7613; // Earth radius (miles)
         Decimal dLat = toRad(lat2 - lat1);
@@ -158,7 +156,7 @@ public without sharing class AccountMapController {
         return R * c;
     }
 
-    // ---------- remoting ----------
+    // Remote actions
 
     @RemoteAction
     public static String getZipCodeCentroid(String zipCode) {
@@ -169,7 +167,7 @@ public without sharing class AccountMapController {
             });
         }
 
-        // Prepare the API request
+        // Setup API request
         HttpRequest req = new HttpRequest();
         req.setEndpoint('https://shape-api-gateway.dev.services.ascentcloud-api.io/getShapes/featureCollection');
         req.setMethod('POST');
@@ -179,7 +177,7 @@ public without sharing class AccountMapController {
         req.setHeader('x-user-id', '005O800000IAAS9IAP');
         req.setHeader('x-organization-id', '00DEk00000OOV8GMAX');
         
-        // Create the request body
+        // Build request body
         Map<String, Object> requestBody = new Map<String, Object>{
             'search' => zipCode,
             'type' => 'ZIP Code (USPS)',
@@ -196,7 +194,7 @@ public without sharing class AccountMapController {
         if (res.getStatusCode() == 200) {
             Map<String, Object> responseData = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
             
-            // Extract centroid from response
+            // Get centroid coordinates
             if (responseData.containsKey('geoShapes')) {
                 Map<String, Object> geoShapes = (Map<String, Object>) responseData.get('geoShapes');
                 if (geoShapes.containsKey('features')) {
@@ -280,12 +278,10 @@ public without sharing class AccountMapController {
         return JSON.serialize(result);
     }
 
-    // NOTE: We cannot use SOQL DISTANCE() because your coordinates live in separate
-    // number fields (GeoPointe relationship), not a native Geolocation field.
-    // So we: (1) use cached accounts, then (2) filter by distance in Apex via Haversine.
+    // Filter accounts by distance using Haversine formula
 
     private static List<Account> performRadialSearch(String postalCode, String distanceMilesStr) {
-        // Get centroid coordinates from API
+        // Get search center coordinates
         String centroidResponse = getZipCodeCentroid(postalCode);
         Map<String, Object> centroidData = (Map<String, Object>) JSON.deserializeUntyped(centroidResponse);
         
@@ -302,10 +298,10 @@ public without sharing class AccountMapController {
         
         Decimal miles = Decimal.valueOf(distanceMilesStr);
 
-        // Use cached accounts - NO additional SOQL query
+        // Use cached accounts
         ensureAccountsCacheLoaded();
 
-        // Filter by distance ONLY (in Apex)
+        // Filter by distance
         List<Account> results = new List<Account>();
         for (Account a : allAccountsCache) {
             Decimal alat = a.geopointe__Geocode__r.geopointe__Latitude__c;
@@ -317,12 +313,12 @@ public without sharing class AccountMapController {
     }
 
     private static List<Account> loadAllUSAccounts() {
-        // Use cached accounts - NO additional SOQL query
+        // Use cached accounts
         ensureAccountsCacheLoaded();
         return allAccountsCache;
     }
 
-    // instance wrapper (for button actions if you use them later)
+    // Instance method wrapper
     private List<Account> performRadialSearchInstance(String postalCode, String distance) {
         return performRadialSearch(postalCode, distance);
     }
