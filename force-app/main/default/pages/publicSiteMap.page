@@ -690,7 +690,7 @@
                                     });
                                 }
                                 
-                                loadAccountMarkers();
+                                loadAccountMarkers(postalCode);
                                 
                                                 // Force sidebar update after loading markers
                 console.log('🔄 Forcing sidebar update after loading accounts...');
@@ -871,7 +871,7 @@
             }
             
             
-            function loadAccountMarkers() {
+            function loadAccountMarkers(postalCode) {
                 // Clear existing markers
                 clearMarkers();
                 
@@ -955,8 +955,23 @@
                 console.log('   - Invalid markers skipped:', markers.length - validMarkers);
                 console.log('   - Google markers array length:', googleMarkers.length);
                 
-                // Don't auto-fit bounds to prevent map shifting
-                // Map will stay at the initial center and zoom level
+                // Fit bounds to show all search results when doing a radius search
+                if (postalCode && validMarkers > 0) {
+                    console.log('🎯 Fitting map to show search results for postal code:', postalCode);
+                    map.fitBounds(bounds);
+                    
+                    // Ensure reasonable zoom level for search results
+                    google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
+                        if (map.getZoom() > 15 && validMarkers === 1) {
+                            map.setZoom(15);
+                        } else if (map.getZoom() < 4) {
+                            map.setZoom(4);
+                        }
+                    });
+                } else {
+                    // Don't auto-fit bounds for initial load to prevent map shifting
+                    console.log('📍 Initial load - keeping current map view');
+                }
             }
             
             function clearMarkers() {
