@@ -407,10 +407,17 @@
             .custom-info-window .phone-link {
                 color: #4a5fb8;
                 text-decoration: none;
+                outline: none;
+                border: none;
             }
             
             .custom-info-window .phone-link:hover {
                 text-decoration: underline;
+            }
+            
+            .custom-info-window .phone-link:focus {
+                outline: none;
+                border: none;
             }
         </style>
         
@@ -497,11 +504,15 @@
                 try {
                     console.log('Initializing map...');
                     
-                    // Initialize custom icon
+                    // Initialize custom icon - standard marker with SkinCure logo inside
                     customIcon = {
                         url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-                                <path fill="#4a5fb8" stroke="#fff" stroke-width="2" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                <!-- Standard marker shape -->
+                                <path fill="#398E8C" stroke="#fff" stroke-width="2" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                <!-- SkinCure logo as a simple circle for now -->
+                                <circle cx="12" cy="9" r="5" fill="#fff" stroke="#398E8C" stroke-width="1"/>
+                                <text x="12" y="13" text-anchor="middle" font-family="Arial" font-size="8" fill="#398E8C" font-weight="bold">G</text>
                             </svg>
                         `),
                         scaledSize: new google.maps.Size(32, 32),
@@ -662,10 +673,19 @@
                                 // Handle new response format with accounts and center
                                 if (data.accounts) {
                                     markers = data.accounts;
-                                    console.log('Loaded ' + markers.length + ' account markers');
+                                    console.log('✅ Loaded ' + markers.length + ' account markers from data.accounts');
+                                    // Debug: Log first marker structure
+                                    if (markers.length > 0) {
+                                        console.log('🔍 First marker structure:', markers[0]);
+                                    }
                                 } else {
                                     // Fallback for old format
                                     markers = data;
+                                    console.log('✅ Loaded ' + markers.length + ' account markers from direct data');
+                                    // Debug: Log first marker structure
+                                    if (markers.length > 0) {
+                                        console.log('🔍 First marker structure:', markers[0]);
+                                    }
                                 }
                                 
                                 // Center map on zip code if provided
@@ -814,14 +834,10 @@
                         var account = visibleAccounts[i];
                         html += '<div class="account-item" onclick="selectAccount(\'' + account.id + '\')">';
                         
-                        // Make account name a clickable website link
-                        if (account.website) {
-                            html += '<div class="account-name"><a href="' + formatWebsiteUrl(account.website) + '" target="_blank" onclick="event.stopPropagation();">' + account.name + '</a></div>';
-                        } else {
-                            html += '<div class="account-name">' + account.name + '</div>';
-                        }
+                        // Account name (no website link)
+                        html += '<div class="account-name">' + account.name + '</div>';
                         
-                        html += '<div class="account-address">' + account.address + '</div>';
+                        html += '<div class="account-address">Postal Code: ' + account.address + '</div>';
                         if (account.phone) {
                             html += '<div class="account-contact">Phone: ' + account.phone + '</div>';
                         }
@@ -908,13 +924,6 @@
                 return shouldShow;
             }
             
-            function formatWebsiteUrl(website) {
-                if (!website) return '#';
-                if (website.startsWith('http://') || website.startsWith('https://')) {
-                    return website;
-                }
-                return 'https://' + website;
-            }
             
             function loadAccountMarkers() {
                 // Clear existing markers
@@ -934,11 +943,18 @@
                 var bounds = new google.maps.LatLngBounds();
                 var validMarkers = 0;
                 
-                markers.forEach(function(markerData) {
+                markers.forEach(function(markerData, index) {
+                    // Debug: Log first few marker data objects
+                    if (index < 3) {
+                        console.log('🔍 Marker data sample:', markerData);
+                        console.log('🔍 Has lat:', !!markerData.lat, 'value:', markerData.lat);
+                        console.log('🔍 Has lng:', !!markerData.lng, 'value:', markerData.lng);
+                    }
+                    
                     // Validate marker data
                     if (!markerData.lat || !markerData.lng || 
                         isNaN(parseFloat(markerData.lat)) || isNaN(parseFloat(markerData.lng))) {
-                        console.warn('Invalid marker data:', markerData);
+                        console.warn('❌ Invalid marker data (index', index, '):', markerData);
                         return;
                     }
                     
@@ -967,15 +983,11 @@
                     // Add click listener for info window with improved styling
                     var content = '<div class="custom-info-window">';
                     
-                    // Company name as clickable website link
-                    if (markerData.website) {
-                        content += '<h3><a href="' + formatWebsiteUrl(markerData.website) + '" target="_blank" class="company-link">' + markerData.name + '</a></h3>';
-                    } else {
-                        content += '<h3 class="company-name">' + markerData.name + '</h3>';
-                    }
+                    // Company name (no website link)
+                    content += '<h3 class="company-name">' + markerData.name + '</h3>';
                     
                     // Address
-                    content += '<p class="address-info">' + markerData.address + '</p>';
+                    content += '<p class="address-info">Postal Code: ' + markerData.address + '</p>';
                     
                     // Phone
                     if (markerData.phone) {
@@ -1002,7 +1014,11 @@
                     });
                 });
                 
-                console.log('Total valid markers created:', validMarkers, 'out of', markers.length);
+                console.log('📊 MARKER CREATION SUMMARY:');
+                console.log('   - Total markers in data:', markers.length);
+                console.log('   - Valid markers created:', validMarkers);
+                console.log('   - Invalid markers skipped:', markers.length - validMarkers);
+                console.log('   - Google markers array length:', googleMarkers.length);
                 
                 // Fit map to show all markers
                 if (validMarkers > 0) {

@@ -47,8 +47,8 @@ public without sharing class AccountMapController {
     private static void ensureAccountsCacheLoaded() {
         if (allAccountsCache == null) {
             allAccountsCache = [
-                SELECT Id, Name, ShippingStreet, ShippingCity, ShippingState,
-                       ShippingPostalCode, ShippingCountry, Phone, Website,
+                SELECT Id, Name, ShippingCity, ShippingState,
+                       ShippingPostalCode, ShippingCountry, Phone,
                        geopointe__Geocode__r.geopointe__Latitude__c,
                        geopointe__Geocode__r.geopointe__Longitude__c
                   FROM Account
@@ -89,16 +89,21 @@ public without sharing class AccountMapController {
         for (Account acc : accounts) {
             Map<String, Object> row = new Map<String, Object>();
             row.put('id', acc.Id);
-            row.put('name', acc.Name);
+            // Format name as 'GentleCure Location: City, ST'
+            String displayName = 'GentleCure Location: ' + 
+                (String.isNotBlank(acc.ShippingCity) ? acc.ShippingCity : '') + 
+                (String.isNotBlank(acc.ShippingCity) && String.isNotBlank(acc.ShippingState) ? ', ' : '') +
+                (String.isNotBlank(acc.ShippingState) ? acc.ShippingState : '');
+            row.put('name', displayName);
 
+            // Only show first 5 digits of postal code since city and state are in the name
             String shortAddr = '';
-            if (String.isNotBlank(acc.ShippingCity) && String.isNotBlank(acc.ShippingState)) {
-                shortAddr = acc.ShippingCity + ', ' + acc.ShippingState;
-                if (String.isNotBlank(acc.ShippingPostalCode)) shortAddr += ' ' + acc.ShippingPostalCode;
+            if (String.isNotBlank(acc.ShippingPostalCode)) {
+                String zipCode = acc.ShippingPostalCode.trim();
+                shortAddr = zipCode.length() >= 5 ? zipCode.substring(0, 5) : zipCode;
             }
             row.put('address', shortAddr);
             if (String.isNotBlank(acc.Phone)) row.put('phone', acc.Phone);
-            if (String.isNotBlank(acc.Website)) row.put('website', acc.Website);
 
             // Use GeoPointe coordinates
             if (acc.geopointe__Geocode__r != null &&
@@ -115,12 +120,12 @@ public without sharing class AccountMapController {
     // Helper methods
 
     private static String buildAddressString(Account acc) {
-        List<String> parts = new List<String>();
-        if (String.isNotBlank(acc.ShippingStreet)) parts.add(acc.ShippingStreet);
-        if (String.isNotBlank(acc.ShippingCity)) parts.add(acc.ShippingCity);
-        if (String.isNotBlank(acc.ShippingState)) parts.add(acc.ShippingState);
-        if (String.isNotBlank(acc.ShippingPostalCode)) parts.add(acc.ShippingPostalCode);
-        return String.join(parts, ', ');
+        // Only return first 5 digits of postal code since city and state are in the name
+        if (String.isNotBlank(acc.ShippingPostalCode)) {
+            String zipCode = acc.ShippingPostalCode.trim();
+            return zipCode.length() >= 5 ? zipCode.substring(0, 5) : zipCode;
+        }
+        return '';
     }
 
     // Convert degrees to radians
@@ -232,11 +237,14 @@ public without sharing class AccountMapController {
         for (Account acc : listToUse) {
             Map<String, Object> m = new Map<String, Object>();
             m.put('id', acc.Id);
-            m.put('name', acc.Name);
+            // Format name as 'GentleCure Location: City, ST'
+            String displayName = 'GentleCure Location: ' + 
+                (String.isNotBlank(acc.ShippingCity) ? acc.ShippingCity : '') + 
+                (String.isNotBlank(acc.ShippingCity) && String.isNotBlank(acc.ShippingState) ? ', ' : '') +
+                (String.isNotBlank(acc.ShippingState) ? acc.ShippingState : '');
+            m.put('name', displayName);
             m.put('address', buildAddressString(acc));
             m.put('phone', acc.Phone != null ? acc.Phone : '');
-            m.put('website', acc.Website != null ? acc.Website : '');
-            m.put('street', acc.ShippingStreet != null ? acc.ShippingStreet : '');
             m.put('city', acc.ShippingCity != null ? acc.ShippingCity : '');
             m.put('state', acc.ShippingState != null ? acc.ShippingState : '');
             m.put('postalCode', acc.ShippingPostalCode != null ? acc.ShippingPostalCode : '');
@@ -318,4 +326,8 @@ public without sharing class AccountMapController {
         selectedDistance = '';
         loadAllAccounts();
     }
+    @TestVisible
+		static void setAccountsCacheForTest(List<Account> records) {
+    	allAccountsCache = records;
+}
 }
