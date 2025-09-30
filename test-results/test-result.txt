@@ -1,0 +1,43 @@
+=== Test Results
+TEST NAME                                                   OUTCOME  MESSAGE  RUNTIME (MS)
+──────────────────────────────────────────────────────────  ───────  ───────  ────────────
+MarketingMapControllerTest.testAddressVariants              Pass              46          
+MarketingMapControllerTest.testConstructorAndSerialization  Pass              61          
+MarketingMapControllerTest.testConstructorSafeWhenNoRows    Pass              7           
+MarketingMapControllerTest.testDisplayNameAndFallback       Pass              24          
+MarketingMapControllerTest.testFilteringEnsuresLatLng       Pass              22          
+MarketingMapControllerTest.testRemoteAction                 Pass              22          
+MarketingMapControllerTest.testToRadAndHaversine            Pass              5           
+
+
+=== Apex Code Coverage by Class
+CLASSES                 PERCENT  UNCOVERED LINES    
+──────────────────────  ───────  ───────────────────
+AccountTriggerHandler   56%      11,21,24,32,45,... 
+TriggerDispatcher       67%      8,18,26,27,29,...  
+MarketingMapController  88%      62,63,64,65,140,...
+AccountTrigger          100%                        
+dlrs_AccountTrigger     100%                        
+
+
+=== Test Setup Time by Test Class for Run 707VE00001S6MGa
+TEST SETUP METHOD NAME            SETUP TIME
+────────────────────────────────  ──────────
+MarketingMapControllerTest.setup  16863     
+
+
+=== Test Summary
+NAME                 VALUE                               
+───────────────────  ────────────────────────────────────
+Outcome              Passed                              
+Tests Ran            8                                   
+Pass Rate            100%                                
+Fail Rate            0%                                  
+Skip Rate            0%                                  
+Test Run Id          707VE00001S6MGa                     
+Test Setup Time      16863 ms                            
+Test Execution Time  187 ms                              
+Test Total Time      17050 ms                            
+Org Id               00DVE000007R8yL2AS                  
+Username             ascent.cloud@skincure.ascentcloud.io
+Org Wide Coverage    2%                                  

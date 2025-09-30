@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+    <testsuite name="force.apex" timestamp="2025-09-29T22:33:24.000Z" hostname="https://skincureoncology--full.sandbox.my.salesforce.com" tests="8" failures="0"  errors="0"  time="0.19">
+        <properties>
+            <property name="outcome" value="Successful"/>
+            <property name="testsRan" value="8"/>
+            <property name="passing" value="8"/>
+            <property name="failing" value="0"/>
+            <property name="skipped" value="0"/>
+            <property name="passRate" value="100%"/>
+            <property name="failRate" value="0%"/>
+            <property name="testStartTime" value="Mon Sep 29 2025 3:33:24 PM"/>
+            <property name="testSetupTimeInMs" value="16863"/>
+            <property name="testExecutionTime" value="0.19 s"/>
+            <property name="testTotalTime" value="17.05 s"/>
+            <property name="commandTime" value="0.40 s"/>
+            <property name="hostname" value="https://skincureoncology--full.sandbox.my.salesforce.com"/>
+            <property name="orgId" value="00DVE000007R8yL2AS"/>
+            <property name="username" value="ascent.cloud@skincure.ascentcloud.io"/>
+            <property name="testRunId" value="707VE00001S6MGa"/>
+            <property name="userId" value="005VE00000QfHNhYAN"/>
+            <property name="coveredLines" value="132"/>
+            <property name="testRunCoverage" value="79%"/>
+            <property name="orgWideCoverage" value="2%"/>
+        </properties>
+        <testcase name="testAddressVariants" classname="MarketingMapControllerTest" time="0.05">
+        </testcase>
+        <testcase name="testConstructorAndSerialization" classname="MarketingMapControllerTest" time="0.06">
+        </testcase>
+        <testcase name="testConstructorSafeWhenNoRows" classname="MarketingMapControllerTest" time="0.01">
+        </testcase>
+        <testcase name="testDisplayNameAndFallback" classname="MarketingMapControllerTest" time="0.02">
+        </testcase>
+        <testcase name="testFilteringEnsuresLatLng" classname="MarketingMapControllerTest" time="0.02">
+        </testcase>
+        <testcase name="testRemoteAction" classname="MarketingMapControllerTest" time="0.02">
+        </testcase>
+        <testcase name="testToRadAndHaversine" classname="MarketingMapControllerTest" time="0.01">
+        </testcase>
+    </testsuite>
+</testsuites>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+    <testsuite name="force.apex" timestamp="2025-09-29T22:21:20.000Z" hostname="https://skincureoncology--full.sandbox.my.salesforce.com" tests="8" failures="5"  errors="0"  time="0.22">
+        <properties>
+            <property name="outcome" value="Failed"/>
+            <property name="testsRan" value="8"/>
+            <property name="passing" value="3"/>
+            <property name="failing" value="5"/>
+            <property name="skipped" value="0"/>
+            <property name="passRate" value="38%"/>
+            <property name="failRate" value="63%"/>
+            <property name="testStartTime" value="Mon Sep 29 2025 3:21:20 PM"/>
+            <property name="testSetupTimeInMs" value="23199"/>
+            <property name="testExecutionTime" value="0.22 s"/>
+            <property name="testTotalTime" value="23.42 s"/>
+            <property name="commandTime" value="0.54 s"/>
+            <property name="hostname" value="https://skincureoncology--full.sandbox.my.salesforce.com"/>
+            <property name="orgId" value="00DVE000007R8yL2AS"/>
+            <property name="username" value="ascent.cloud@skincure.ascentcloud.io"/>
+            <property name="testRunId" value="707VE00001S654O"/>
+            <property name="userId" value="005VE00000QfHNhYAN"/>
+            <property name="coveredLines" value="124"/>
+            <property name="testRunCoverage" value="74%"/>
+            <property name="orgWideCoverage" value="1%"/>
+        </properties>
+        <testcase name="testAddressVariants" classname="MarketingMapControllerTest" time="0.07">
+            <failure message="System.AssertException: Assertion Failed: At least one address should include a ZIP code"><![CDATA[Class.MarketingMapControllerTest.testAddressVariants: line 223, column 1]]></failure>
+        </testcase>
+        <testcase name="testConstructorAndSerialization" classname="MarketingMapControllerTest" time="0.04">
+            <failure message="System.AssertException: Assertion Failed: Should serialize 3 rows: Expected: 3, Actual: 0"><![CDATA[Class.MarketingMapControllerTest.testConstructorAndSerialization: line 151, column 1]]></failure>
+        </testcase>
+        <testcase name="testConstructorSafeWhenNoRows" classname="MarketingMapControllerTest" time="0.01">
+        </testcase>
+        <testcase name="testDisplayNameAndFallback" classname="MarketingMapControllerTest" time="0.03">
+            <failure message="System.AssertException: Assertion Failed: Expect at least one &quot;City, ST&quot; formatted name"><![CDATA[Class.MarketingMapControllerTest.testDisplayNameAndFallback: line 196, column 1]]></failure>
+        </testcase>
+        <testcase name="testFilteringEnsuresLatLng" classname="MarketingMapControllerTest" time="0.03">
+            <failure message="System.AssertException: Assertion Failed: Should have 3 records with geocodes: Expected: 3, Actual: 0"><![CDATA[Class.MarketingMapControllerTest.testFilteringEnsuresLatLng: line 239, column 1]]></failure>
+        </testcase>
+        <testcase name="testRemoteAction" classname="MarketingMapControllerTest" time="0.03">
+            <failure message="System.AssertException: Assertion Failed: records returned should be 3: Expected: 3, Actual: 0"><![CDATA[Class.MarketingMapControllerTest.testRemoteAction: line 173, column 1]]></failure>
+        </testcase>
+        <testcase name="testToRadAndHaversine" classname="MarketingMapControllerTest" time="0.01">
+        </testcase>
+    </testsuite>
+</testsuites>
