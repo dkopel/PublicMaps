@@ -527,17 +527,9 @@
                 try {
                     console.log('Initializing map...');
                     
-                    // Initialize custom icon - standard marker with SkinCure logo inside
+                    // Initialize custom icon - using custom pushpin image from S3
                     customIcon = {
-                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-                                <!-- Standard marker shape -->
-                                <path fill="#398E8C" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                                <!-- SkinCure logo as a simple circle for now -->
-                                <circle cx="12" cy="9" r="5" fill="#fff" stroke="#398E8C" stroke-width="1"/>
-                                <text x="12" y="13" text-anchor="middle" font-family="Arial" font-size="8" fill="#398E8C" font-weight="bold">G</text>
-                            </svg>
-                        `),
+                        url: 'https://s3.amazonaws.com/62-75-78-74-6f-6e-63-6f-RandomStorage/106773_c629722d-2e92-41d4-980f-dbd46155dd24_PushPin2png.png',
                         scaledSize: new google.maps.Size(32, 32),
                         anchor: new google.maps.Point(16, 32)
                     };
