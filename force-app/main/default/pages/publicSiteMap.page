@@ -93,7 +93,7 @@
             }
             
             .btn {
-                background: #4a5fb8;
+                background: #244C5D;
                 color: white;
                 border: none;
                 padding: 10px 20px;
@@ -106,7 +106,7 @@
             }
             
             .btn:hover {
-                background: #3a4f98;
+                background: #1a3a47;
             }
             
             .btn-secondary {
@@ -237,14 +237,14 @@
             }
             
             .account-name a {
-                color: #4a5fb8;
+                color: #244C5D;
                 text-decoration: none;
                 font-weight: bold;
             }
             
             .account-name a:hover {
                 text-decoration: underline;
-                color: #3a4f98;
+                color: #1a3a47;
             }
             
             .account-address {
@@ -254,7 +254,7 @@
             }
             
             .account-contact {
-                color: #4a5fb8;
+                color: #244C5D;
                 font-size: 14px;
             }
             
@@ -283,7 +283,7 @@
                 border: 1px solid #b3d9ff;
                 border-radius: 4px;
                 margin-bottom: 10px;
-                color: #0066cc;
+                color: #244C5D;
                 font-size: 12px;
                 line-height: 1.3;
             }
@@ -377,14 +377,14 @@
             }
             
             .custom-info-window .company-link {
-                color: #4a5fb8;
+                color: #244C5D;
                 text-decoration: none;
                 font-weight: bold;
             }
             
             .custom-info-window .company-link:hover {
                 text-decoration: underline;
-                color: #3a4f98;
+                color: #1a3a47;
             }
             
             .custom-info-window .company-name {
@@ -406,7 +406,7 @@
             }
             
             .custom-info-window .phone-link {
-                color: #4a5fb8;
+                color: #244C5D;
                 text-decoration: none;
                 outline: none;
                 border: none;
