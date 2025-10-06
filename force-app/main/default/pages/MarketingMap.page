@@ -1,0 +1,753 @@
+<apex:page controller="MarketingMapController" docType="html-5.0" showHeader="false" sidebar="false" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false" cache="false">
+    <html>
+    <head>
+        <!-- Google Tag Manager -->
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-W63V7PVF');</script>
+        <!-- End Google Tag Manager -->
+        
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <title>SkinCure Oncology Open Radiation Therapist Positions</title>
+        <style>
+            body, html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            }
+            
+            .main-container {
+                display: flex;
+                height: 100vh;
+            }
+            
+            #map {
+                flex: 1;
+                height: 100vh;
+            }
+            
+            .legend {
+                width: 320px;
+                background: #ffffff;
+                border-left: 1px solid #e0e0e0;
+                overflow-y: auto;
+                box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+                z-index: 1000;
+            }
+            
+            .legend-header {
+                padding: 20px;
+                border-bottom: 1px solid #e0e0e0;
+                background: #f8f9fa;
+                position: sticky;
+                top: 0;
+                z-index: 1001;
+            }
+            
+            .legend-title {
+                font-size: 16px;
+                font-weight: 600;
+                color: #1a1a1a;
+                margin: 0 0 8px 0;
+            }
+            
+            .legend-count {
+                font-size: 14px;
+                color: #666;
+                margin: 0;
+            }
+            
+            .legend-list {
+                padding: 0;
+            }
+            
+            .legend-item {
+                padding: 12px 20px;
+                border-bottom: 1px solid #f0f0f0;
+                cursor: pointer;
+                transition: background 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .legend-item:hover {
+                background: #f8f9fa;
+            }
+            
+            .legend-marker {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background: #d32f2f;
+                flex-shrink: 0;
+                border: 2px solid #fff;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            }
+            
+            .legend-group {
+                border-bottom: 1px solid #e0e0e0;
+            }
+            
+            .legend-group:last-child {
+                border-bottom: none;
+            }
+            
+            .legend-group-header {
+                padding: 16px 20px;
+                background: #f8f9fa;
+                border-bottom: 1px solid #e0e0e0;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-weight: 600;
+                font-size: 14px;
+                color: #1a1a1a;
+                transition: background 0.2s;
+            }
+            
+            .legend-group-header:hover {
+                background: #e9ecef;
+            }
+            
+            .legend-group-header .group-marker {
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                margin-right: 12px;
+                border: 2px solid #fff;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            }
+            
+            .legend-group-controls {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .legend-group-count {
+                background: #dee2e6;
+                color: #495057;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 11px;
+                font-weight: 500;
+            }
+            
+            .legend-control-btn {
+                background: none;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 10px;
+                cursor: pointer;
+                transition: all 0.2s;
+                color: #666;
+            }
+            
+            .legend-control-btn:hover {
+                background: #f8f9fa;
+                border-color: #999;
+            }
+            
+            .legend-control-btn.active {
+                background: #007bff;
+                color: white;
+                border-color: #007bff;
+            }
+            
+            .legend-group-collapse-icon {
+                transition: transform 0.2s;
+                font-size: 12px;
+                color: #666;
+            }
+            
+            .legend-group-collapsed .legend-group-collapse-icon {
+                transform: rotate(-90deg);
+            }
+            
+            .legend-group-items {
+                max-height: 1000px;
+                overflow: hidden;
+                transition: max-height 0.3s ease-out;
+            }
+            
+            .legend-group-collapsed .legend-group-items {
+                max-height: 0;
+            }
+            
+            .legend-group-hidden {
+                opacity: 0.5;
+            }
+            
+            .legend-group-hidden .legend-group-header {
+                background: #e9ecef;
+                color: #6c757d;
+            }
+            
+            .legend-group-hidden .group-marker {
+                opacity: 0.6;
+            }
+            
+            .legend-item-info {
+                flex: 1;
+            }
+            
+            .legend-item-name {
+                font-weight: 500;
+                color: #1a1a1a;
+                margin-bottom: 2px;
+                font-size: 14px;
+            }
+            
+            .legend-item-details {
+                font-size: 12px;
+                color: #666;
+            }
+            
+            @media screen and (max-width: 768px) {
+                .main-container {
+                    flex-direction: column;
+                }
+                
+                .legend {
+                    width: 100%;
+                    max-height: 40vh;
+                    order: 2;
+                    border-left: none;
+                    border-top: 1px solid #e0e0e0;
+                }
+                
+                #map {
+                    order: 1;
+                    height: 60vh;
+                }
+            }
+            
+            .custom-info-window {
+                padding: 12px;
+                max-width: 280px;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            }
+            
+            .info-window-title {
+                font-weight: 600;
+                color: #1a1a1a;
+                margin-bottom: 8px;
+                font-size: 14px;
+            }
+            
+            .info-window-detail {
+                font-size: 12px;
+                color: #666;
+                margin-bottom: 4px;
+            }
+            
+            .info-window-type {
+                display: inline-block;
+                background: #e3f2fd;
+                color: #1976d2;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 10px;
+                font-weight: 500;
+                margin-top: 4px;
+            }
+        </style>
+        
+        <script src="https://maps.googleapis.com/maps/api/js?key={!googleMapsApiKey}&libraries=places,geometry&loading=async&callback=initMap"></script>
+        
+        <script>
+            // Fix InternalDialogs error
+            if (typeof InternalDialogs === 'undefined') {
+                window.InternalDialogs = {
+                    show: function() { console.log('InternalDialogs.show'); },
+                    hide: function() { console.log('InternalDialogs.hide'); }
+                };
+            }
+            
+            // Configure VFRemote
+            if (typeof Visualforce !== 'undefined' && Visualforce.remoting) {
+                Visualforce.remoting.timeout = 120000;
+                Visualforce.remoting.buffer = false;
+            }
+            
+            // Cross-origin support
+            try {
+                // Iframe embedding
+                if (window.self !== window.top) {
+                    console.log('Running in iframe context');
+                }
+                
+                // Cross-origin communication
+                window.addEventListener('message', function(event) {
+                    // Trusted domains
+                    console.log('Received message from:', event.origin);
+                }, false);
+                
+            } catch (e) {
+                console.log('Cross-origin restrictions detected:', e.message);
+            }
+        </script>
+    </head>
+    
+    <body>
+        <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W63V7PVF"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <!-- End Google Tag Manager (noscript) -->
+        
+        <div class="main-container">
+            <!-- Full screen map -->
+            <div id="map"></div>
+            
+            <!-- Legend on right side -->
+            <div class="legend">
+                <div class="legend-header">
+                    <h3 class="legend-title">Open Positions</h3>
+                    <p class="legend-count">Total: <span id="totalCount">0</span></p>
+                </div>
+                <div class="legend-list" id="legendList">
+                    <!-- Legend items will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            var markers = [];
+            var googleMarkers = [];
+            var map;
+            var currentInfoWindow = null;
+            var recordMarkers = {}; // Store markers by record ID
+            var markersByGroup = {}; // Store markers by placement type group
+            var hiddenGroups = new Set(); // Track hidden groups
+            
+            // Dynamic color assignment
+            var availableColors = [
+                '#dc3545', // Red (value 1)
+                '#007bff', // Blue (value 2)  
+                '#28a745', // Green (value 3)
+                '#ffc107', // Yellow (value 4)
+                '#fd7e14', // Orange (value 5)
+                '#6f42c1', // Purple (value 6)
+                '#20c997', // Teal (value 7)
+                '#e83e8c'  // Pink (value 8)
+            ];
+            
+            var placementTypeToColorMap = {}; // Dynamic mapping of placement types to colors
+            var uniquePlacementTypes = []; // Track unique placement types in order
+            var defaultColor = '#6c757d'; // Gray for unknown/null
+            
+            function assignColorToPlacementType(placementType) {
+                // Handle null values
+                if (!placementType || placementType === '' || placementType === null || placementType === undefined) {
+                    placementType = 'Unknown';
+                }
+                
+                // Assign color to new placement type
+                if (!placementTypeToColorMap[placementType]) {
+                    if (uniquePlacementTypes.length < availableColors.length) {
+                        var colorIndex = uniquePlacementTypes.length;
+                        placementTypeToColorMap[placementType] = availableColors[colorIndex];
+                        uniquePlacementTypes.push(placementType);
+                    } else {
+                        // Use default color
+                        placementTypeToColorMap[placementType] = defaultColor;
+                    }
+                }
+                
+                return placementTypeToColorMap[placementType];
+            }
+            
+            function getPlacementTypeColor(placementType) {
+                return assignColorToPlacementType(placementType);
+            }
+
+            // Initialize map
+            window.initMap = function() {
+                try {
+                    
+                    var defaultCenter = {lat: 39.8283, lng: -98.5795}; // Center of US
+                    
+                    var mapElement = document.getElementById('map');
+                    if (!mapElement) {
+                        console.error('Map element not found!');
+                        return;
+                    }
+                    
+                    map = new google.maps.Map(mapElement, {
+                        zoom: 4, // Show whole US
+                        center: defaultCenter,
+                        mapTypeControl: true,
+                        streetViewControl: true,
+                        fullscreenControl: true,
+                        scrollwheel: true,
+                        gestureHandling: 'auto',
+                        zoomControl: true,
+                        scaleControl: true,
+                        minZoom: 3,
+                        maxZoom: 18
+                    });
+                    
+                    
+                    var totalCountElement = document.getElementById('totalCount');
+                    var legendListElement = document.getElementById('legendList');
+                    
+                    // Set initial values
+                    if (totalCountElement) totalCountElement.textContent = 'Loading...';
+                    if (legendListElement) legendListElement.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">Loading positions...</div>';
+                    
+                    // Load project records
+                    loadMarketingFromServer();
+                    
+                } catch(error) {
+                    console.error('Error initializing map:', error);
+                }
+            };
+            
+            function loadMarketingFromServer() {
+                // Check if Visualforce is available (may not be in iframe context)
+                if (typeof Visualforce === 'undefined' || !Visualforce.remoting) {
+                    console.error('Visualforce remoting not available - iframe context issue');
+                    // You could add fallback data loading here if needed
+                    return;
+                }
+                
+                Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.MarketingMapController.getMarketingData}',
+                    function(result, event) {
+                        if (event.status) {
+                try {
+                    var data = JSON.parse(result);
+                    
+                    if (data.records) {
+                        markers = data.records;
+                    } else {
+                        markers = [];
+                    }
+                    
+                    loadMarketingMarkers();
+                    updateLegend();
+                                
+                            } catch (e) {
+                                console.error('Error parsing marketing data:', e);
+                            }
+                        } else {
+                            console.error('Error from server:', event);
+                            console.error('Event details:', {
+                                status: event.status,
+                                message: event.message,
+                                type: event.type,
+                                where: event.where
+                            });
+                        }
+                    },
+                    {escape: false}
+                );
+            }
+            
+            function loadMarketingMarkers() {
+                // Clear existing markers
+                clearMarkers();
+                
+                if (!markers || markers.length === 0) {
+                    return;
+                }
+                
+                if (!map) {
+                    console.error('Map not initialized yet');
+                    return;
+                }
+                
+                markers.forEach(function(markerData, index) {
+                    
+                    // Validate marker data
+                    if (!markerData.lat || !markerData.lng || 
+                        isNaN(parseFloat(markerData.lat)) || isNaN(parseFloat(markerData.lng))) {
+                        console.warn('Invalid marker data:', markerData);
+                        return;
+                    }
+                    
+                    var position = {
+                        lat: parseFloat(markerData.lat),
+                        lng: parseFloat(markerData.lng)
+                    };
+                    
+                    
+                    // Get color for this placement type
+                    var markerColor = getPlacementTypeColor(markerData.placementType);
+                    
+                    // Create custom colored marker icon
+                    var markerIcon = {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 8,
+                        fillColor: markerColor,
+                        fillOpacity: 1,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2
+                    };
+                    
+                    // Check if this group is hidden
+                    var placementType = markerData.placementType || 'Unknown';
+                    var isHidden = hiddenGroups.has(placementType);
+                    
+                    // Create marker with colored icon
+                    var marker = new google.maps.Marker({
+                        position: position,
+                        map: isHidden ? null : map, // Don't show on map if group is hidden
+                        title: markerData.name, // This will show "City, ST" format
+                        icon: markerIcon
+                    });
+                    
+                    googleMarkers.push(marker);
+                    
+                    // Store marker by record ID for easy lookup
+                    recordMarkers[markerData.id] = marker;
+                    
+                    // Group markers by placement type
+                    if (!markersByGroup[placementType]) {
+                        markersByGroup[placementType] = [];
+                    }
+                    markersByGroup[placementType].push({
+                        marker: marker,
+                        data: markerData
+                    });
+                    
+                    // Add click listener for info window
+                    var content = '<div class="custom-info-window">';
+                    content += '<div class="info-window-title">' + markerData.name + '</div>';
+                    
+                    if (markerData.startDate) {
+                        content += '<div class="info-window-detail"><strong>Start:</strong> ' + formatDate(markerData.startDate) + '</div>';
+                    }
+                    if (markerData.endDate) {
+                        content += '<div class="info-window-detail"><strong>End:</strong> ' + formatDate(markerData.endDate) + '</div>';
+                    }
+                    if (markerData.address) {
+                        content += '<div class="info-window-detail"><strong>Address:</strong> ' + markerData.address + '</div>';
+                    }
+                    if (markerData.placementType) {
+                        content += '<div class="info-window-type" style="background-color: ' + getPlacementTypeColor(markerData.placementType) + '; color: white;">' + markerData.placementType + '</div>';
+                    }
+                    
+                    content += '</div>';
+                    
+                    var markerInfoWindow = new google.maps.InfoWindow({
+                        content: content,
+                        maxWidth: 300
+                    });
+                    
+                    marker.addListener('click', function() {
+                        // Close currently open info window if exists
+                        if (currentInfoWindow) {
+                            currentInfoWindow.close();
+                        }
+                        
+                        // Open this marker's info window and set as current
+                        markerInfoWindow.open(map, marker);
+                        currentInfoWindow = markerInfoWindow;
+                    });
+                });
+                
+                
+                // Keep the map showing the whole US - don't auto-fit to markers
+                // This ensures the full US is always visible
+            }
+            
+            function clearMarkers() {
+                for (var i = 0; i < googleMarkers.length; i++) {
+                    googleMarkers[i].setMap(null);
+                }
+                googleMarkers = [];
+                recordMarkers = {};
+                markersByGroup = {};
+                
+                // Reset color assignments for fresh start
+                placementTypeToColorMap = {};
+                uniquePlacementTypes = [];
+            }
+            
+            function updateLegend() {
+                
+                var totalCountElement = document.getElementById('totalCount');
+                var legendListElement = document.getElementById('legendList');
+                
+                if (!totalCountElement || !legendListElement) {
+                    console.error('Legend elements not found:', totalCountElement, legendListElement);
+                    return;
+                }
+                
+                
+                if (!markers || markers.length === 0) {
+                    legendListElement.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No positions to display</div>';
+                    return;
+                }
+                
+                // Group markers by placement type
+                var groups = {};
+                markers.forEach(function(record) {
+                    var placementType = record.placementType || 'Unknown';
+                    if (!groups[placementType]) {
+                        groups[placementType] = [];
+                    }
+                    groups[placementType].push(record);
+                });
+                
+                var html = '';
+                Object.keys(groups).sort().forEach(function(placementType) {
+                    var groupMarkers = groups[placementType];
+                    var groupColor = getPlacementTypeColor(placementType);
+                    var isHidden = hiddenGroups.has(placementType);
+                    
+                    html += '<div class="legend-group' + (isHidden ? ' legend-group-collapsed legend-group-hidden' : '') + '" data-group="' + placementType + '">';
+                    
+                    // Group header
+                    html += '<div class="legend-group-header" onclick="toggleGroupCollapse(\'' + placementType + '\')">';
+                    html += '<div style="display: flex; align-items: center;">';
+                    html += '<div class="group-marker" style="background-color: ' + groupColor + ';"></div>';
+                    html += '<span>' + placementType + '</span>';
+                    html += '</div>';
+                    html += '<div class="legend-group-controls">';
+                    html += '<span class="legend-group-count">' + groupMarkers.length + '</span>';
+                    html += '<button class="legend-control-btn" onclick="toggleGroupVisibility(\'' + placementType + '\', event)" title="Hide/Unhide">' + (isHidden ? 'Unhide' : 'Hide') + '</button>';
+                    html += '<span class="legend-group-collapse-icon">▼</span>';
+                    html += '</div>';
+                    html += '</div>';
+                    
+                    // Group items
+                    html += '<div class="legend-group-items">';
+                    groupMarkers.forEach(function(record) {
+                        html += '<div class="legend-item" onclick="selectRecord(\'' + record.id + '\')">';
+                        html += '<div class="legend-marker" style="background-color: ' + groupColor + ';"></div>';
+                        html += '<div class="legend-item-info">';
+                        html += '<div class="legend-item-name">' + record.name + '</div>';
+                        
+                        var details = [];
+                        if (record.startDate) {
+                            details.push('Start: ' + formatDate(record.startDate));
+                        }
+                        
+                        if (details.length > 0) {
+                            html += '<div class="legend-item-details">' + details.join(' • ') + '</div>';
+                        }
+                        
+                        html += '</div>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                    
+                    html += '</div>';
+                });
+                
+                
+                
+                legendListElement.innerHTML = html;
+                
+                // Update the count to reflect currently visible markers
+                updateVisibleMarkersCount();
+                
+            }
+            
+            function selectRecord(recordId) {
+                // Find the marker for this record and center on it
+                var marker = recordMarkers[recordId];
+                if (marker) {
+                    var position = marker.getPosition();
+                    map.setCenter(position);
+                    map.setZoom(12);
+                    google.maps.event.trigger(marker, 'click');
+                }
+            }
+            
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                try {
+                    var date = new Date(dateString);
+                    return date.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                } catch (e) {
+                    return dateString;
+                }
+            }
+            
+            function toggleGroupCollapse(placementType) {
+                var groupElement = document.querySelector('[data-group="' + placementType + '"]');
+                if (groupElement) {
+                    groupElement.classList.toggle('legend-group-collapsed');
+                }
+            }
+            
+            function toggleGroupVisibility(placementType, event) {
+                event.stopPropagation(); // Prevent collapse toggle
+                
+                var isCurrentlyHidden = hiddenGroups.has(placementType);
+                
+                if (isCurrentlyHidden) {
+                    hiddenGroups.delete(placementType);
+                    // Show markers for this group
+                    if (markersByGroup[placementType]) {
+                        markersByGroup[placementType].forEach(function(item) {
+                            item.marker.setMap(map);
+                        });
+                    }
+                } else {
+                    hiddenGroups.add(placementType);
+                    // Hide markers for this group
+                    if (markersByGroup[placementType]) {
+                        markersByGroup[placementType].forEach(function(item) {
+                            item.marker.setMap(null);
+                        });
+                    }
+                }
+                
+                // Update the button text
+                var button = event.target;
+                button.textContent = isCurrentlyHidden ? 'Hide' : 'Unhide';
+                
+                // Update the group visual state
+                var groupElement = document.querySelector('[data-group="' + placementType + '"]');
+                if (groupElement) {
+                    if (isCurrentlyHidden) {
+                        // Unhide: remove hidden styling and expand the group
+                        groupElement.classList.remove('legend-group-hidden');
+                        groupElement.classList.remove('legend-group-collapsed');
+                    } else {
+                        // Hide: add hidden styling and collapse the group
+                        groupElement.classList.add('legend-group-hidden');
+                        groupElement.classList.add('legend-group-collapsed');
+                    }
+                }
+                
+                // Update the total count to reflect visible markers
+                updateVisibleMarkersCount();
+            }
+            
+            function updateVisibleMarkersCount() {
+                var visibleCount = 0;
+                
+                // Count all markers that are currently visible on the map
+                markers.forEach(function(marker) {
+                    var placementType = marker.placementType || 'Unknown';
+                    if (!hiddenGroups.has(placementType)) {
+                        visibleCount++;
+                    }
+                });
+                
+                // Update the total count display
+                var totalCountElement = document.getElementById('totalCount');
+                if (totalCountElement) {
+                    totalCountElement.textContent = visibleCount;
+                }
+            }
+        </script>
+    </body>
+    </html>
+</apex:page>
