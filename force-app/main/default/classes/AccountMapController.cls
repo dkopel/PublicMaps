@@ -89,9 +89,8 @@ global without sharing class AccountMapController {
         for (Account acc : accounts) {
             Map<String, Object> row = new Map<String, Object>();
             row.put('id', acc.Id);
-            // Format name as 'GentleCure Location: City, ST'
-            String displayName = 'GentleCure Location: ' + 
-                (String.isNotBlank(acc.ShippingCity) ? acc.ShippingCity : '') + 
+            // Format display name as 'City, ST' for UI
+            String displayName = (String.isNotBlank(acc.ShippingCity) ? acc.ShippingCity : '') + 
                 (String.isNotBlank(acc.ShippingCity) && String.isNotBlank(acc.ShippingState) ? ', ' : '') +
                 (String.isNotBlank(acc.ShippingState) ? acc.ShippingState : '');
             row.put('name', displayName);
@@ -237,13 +236,12 @@ global without sharing class AccountMapController {
         for (Account acc : listToUse) {
             Map<String, Object> m = new Map<String, Object>();
             m.put('id', acc.Id);
-            // Format name as 'GentleCure Location: City, ST'
-            String displayName = 'GentleCure Location: ' + 
-                (String.isNotBlank(acc.ShippingCity) ? acc.ShippingCity : '') + 
+            // Format display name as 'City, ST' for UI
+            String displayName = (String.isNotBlank(acc.ShippingCity) ? acc.ShippingCity : '') + 
                 (String.isNotBlank(acc.ShippingCity) && String.isNotBlank(acc.ShippingState) ? ', ' : '') +
                 (String.isNotBlank(acc.ShippingState) ? acc.ShippingState : '');
             m.put('name', displayName);
-            m.put('accountName', acc.Name); // Add actual Salesforce account name
+            m.put('accountName', acc.Name); // Actual Salesforce account name for GTM tracking
             m.put('address', buildAddressString(acc));
             m.put('phone', acc.GentleCure_Website_Practice_Phone__c != null ? acc.GentleCure_Website_Practice_Phone__c : '');
             m.put('city', acc.ShippingCity != null ? acc.ShippingCity : '');

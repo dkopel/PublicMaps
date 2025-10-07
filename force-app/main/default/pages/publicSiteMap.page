@@ -532,17 +532,17 @@
             function trackLocationMapInteraction(practiceData) {
                 var eventData = {
                     'practice_city': practiceData.city || '',
-                    'practice_name': practiceData.name || '',
+                    'practice_name': practiceData.accountName || practiceData.name || '',
                     'practice_phone_number': practiceData.phone || '',
                     'practice_postal_code': practiceData.postalCode || '',
                     'practice_state': practiceData.state || '',
-                    'practice_street': practiceData.street || ''
+                    'practice_street': practiceData.street || '',
+                    'click_type': 'directory_listing'
                 };
                 
-                // Add zip code centroid and distance if available
+                // Add search postal code and distance if radius search occurred
                 if (zipCodeCentroid) {
-                    eventData.search_center_lat = zipCodeCentroid.lat;
-                    eventData.search_center_lng = zipCodeCentroid.lng;
+                    eventData.search_postal_code = zipCodeCentroid.zip;
                     
                     // Calculate distance from zip centroid to practice location if coordinates are available
                     if (practiceData.lat && practiceData.lng) {
@@ -562,17 +562,17 @@
             function trackFindLocationOnMapClick(practiceData) {
                 var eventData = {
                     'practice_city': practiceData.city || '',
-                    'practice_name': practiceData.name || '',
+                    'practice_name': practiceData.accountName || practiceData.name || '',
                     'practice_phone_number': practiceData.phone || '',
                     'practice_postal_code': practiceData.postalCode || '',
                     'practice_state': practiceData.state || '',
-                    'practice_street': practiceData.street || ''
+                    'practice_street': practiceData.street || '',
+                    'click_type': 'pin'
                 };
                 
-                // Add zip code centroid and distance if available
+                // Add search postal code and distance if radius search occurred
                 if (zipCodeCentroid) {
-                    eventData.search_center_lat = zipCodeCentroid.lat;
-                    eventData.search_center_lng = zipCodeCentroid.lng;
+                    eventData.search_postal_code = zipCodeCentroid.zip;
                     
                     // Calculate distance from zip centroid to practice location if coordinates are available
                     if (practiceData.lat && practiceData.lng) {
@@ -593,6 +593,7 @@
                 var practiceData = {
                     id: accountId,
                     name: accountName,
+                    accountName: accountName, // Ensure accountName is available for GTM tracking
                     phone: phoneNumber,
                     postalCode: postalCode,
                     city: city,
