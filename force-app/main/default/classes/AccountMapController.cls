@@ -47,8 +47,8 @@ global without sharing class AccountMapController {
     private static void ensureAccountsCacheLoaded() {
         if (allAccountsCache == null) {
             allAccountsCache = [
-                SELECT Id, Name, ShippingCity, ShippingState,
-                       ShippingPostalCode, ShippingCountry, Phone,
+                SELECT Id, Name, ShippingCity, ShippingState, ShippingStreet,
+                       ShippingPostalCode, ShippingCountry, GentleCure_Website_Practice_Phone__c,
                        geopointe__Geocode__r.geopointe__Latitude__c,
                        geopointe__Geocode__r.geopointe__Longitude__c
                   FROM Account
@@ -103,7 +103,7 @@ global without sharing class AccountMapController {
                 shortAddr = zipCode.length() >= 5 ? zipCode.substring(0, 5) : zipCode;
             }
             row.put('address', shortAddr);
-            if (String.isNotBlank(acc.Phone)) row.put('phone', acc.Phone);
+            if (String.isNotBlank(acc.GentleCure_Website_Practice_Phone__c)) row.put('phone', acc.GentleCure_Website_Practice_Phone__c);
 
             // Use GeoPointe coordinates
             if (acc.geopointe__Geocode__r != null &&
@@ -245,9 +245,10 @@ global without sharing class AccountMapController {
             m.put('name', displayName);
             m.put('accountName', acc.Name); // Add actual Salesforce account name
             m.put('address', buildAddressString(acc));
-            m.put('phone', acc.Phone != null ? acc.Phone : '');
+            m.put('phone', acc.GentleCure_Website_Practice_Phone__c != null ? acc.GentleCure_Website_Practice_Phone__c : '');
             m.put('city', acc.ShippingCity != null ? acc.ShippingCity : '');
             m.put('state', acc.ShippingState != null ? acc.ShippingState : '');
+            m.put('street', acc.ShippingStreet != null ? acc.ShippingStreet : '');
             m.put('postalCode', acc.ShippingPostalCode != null ? acc.ShippingPostalCode : '');
             m.put('country', acc.ShippingCountry != null ? acc.ShippingCountry : '');
             if (acc.geopointe__Geocode__r != null &&

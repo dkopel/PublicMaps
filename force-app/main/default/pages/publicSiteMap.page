@@ -559,7 +559,37 @@
                 trackGTMEvent('location_map_interaction', eventData);
             }
             
-            function trackPhoneClick(accountId, accountName, phoneNumber, postalCode, city, state, lat, lng) {
+            function trackFindLocationOnMapClick(practiceData) {
+                var eventData = {
+                    'practice_city': practiceData.city || '',
+                    'practice_name': practiceData.name || '',
+                    'practice_phone_number': practiceData.phone || '',
+                    'practice_postal_code': practiceData.postalCode || '',
+                    'practice_state': practiceData.state || '',
+                    'practice_street': practiceData.street || ''
+                };
+                
+                // Add zip code centroid and distance if available
+                if (zipCodeCentroid) {
+                    eventData.search_center_lat = zipCodeCentroid.lat;
+                    eventData.search_center_lng = zipCodeCentroid.lng;
+                    
+                    // Calculate distance from zip centroid to practice location if coordinates are available
+                    if (practiceData.lat && practiceData.lng) {
+                        var distance = calculateDistance(
+                            zipCodeCentroid.lat, 
+                            zipCodeCentroid.lng, 
+                            practiceData.lat, 
+                            practiceData.lng
+                        );
+                        eventData.distance = distance;
+                    }
+                }
+                
+                trackGTMEvent('find_location_on_map_click', eventData);
+            }
+            
+            function trackPhoneClick(accountId, accountName, phoneNumber, postalCode, city, state, street, lat, lng) {
                 var practiceData = {
                     id: accountId,
                     name: accountName,
@@ -567,7 +597,7 @@
                     postalCode: postalCode,
                     city: city,
                     state: state,
-                    street: '', // Not available in current data structure
+                    street: street,
                     lat: lat,
                     lng: lng
                 };
@@ -1028,7 +1058,7 @@
                     
                     // Phone with GTM tracking
                     if (markerData.phone) {
-                        content += '<p class="contact-info"><strong>Phone:</strong> <a href="tel:' + markerData.phone + '" class="phone-link" onclick="trackPhoneClick(\'' + markerData.id + '\', \'' + (markerData.accountName || markerData.name) + '\', \'' + markerData.phone + '\', \'' + (markerData.postalCode || markerData.address) + '\', \'' + (markerData.city || '') + '\', \'' + (markerData.state || '') + '\', \'' + markerData.lat + '\', \'' + markerData.lng + '\')">' + markerData.phone + '</a></p>';
+                        content += '<p class="contact-info"><strong>Phone:</strong> <a href="tel:' + markerData.phone + '" class="phone-link" onclick="trackPhoneClick(\'' + markerData.id + '\', \'' + (markerData.accountName || markerData.name) + '\', \'' + markerData.phone + '\', \'' + (markerData.postalCode || markerData.address) + '\', \'' + (markerData.city || '') + '\', \'' + (markerData.state || '') + '\', \'' + (markerData.street || '') + '\', \'' + markerData.lat + '\', \'' + markerData.lng + '\')">' + markerData.phone + '</a></p>';
                     }
                     
                     content += '</div>';
@@ -1040,7 +1070,7 @@
                     });
                     
                     marker.addListener('click', function() {
-                        // Track location_map_click trigger
+                        // Track find_location_on_map_click trigger
                         var practiceData = {
                             id: markerData.id,
                             name: markerData.accountName || markerData.name, // Use actual account name if available
@@ -1048,12 +1078,12 @@
                             postalCode: markerData.postalCode || markerData.address || '',
                             city: markerData.city || '',
                             state: markerData.state || '',
-                            street: '', // Not available in current data structure
+                            street: markerData.street || '',
                             lat: markerData.lat,
                             lng: markerData.lng
                         };
                         
-                        trackLocationMapInteraction(practiceData);
+                        trackFindLocationOnMapClick(practiceData);
                         
                         // Close currently open info window if exists
                         if (currentInfoWindow) {
@@ -1100,12 +1130,53 @@
             }
             
             function selectAccount(accountId) {
-                // Find the marker for this account and trigger its click event
+                // Find the marker for this account and track location_map_interaction event
                 var marker = accountMarkers[accountId];
                 if (marker) {
                     var position = marker.getPosition();
                     zoomToLocation(position.lat(), position.lng(), 12);
-                    google.maps.event.trigger(marker, 'click');
+                    
+                    // Find the marker data to create info window content and track event
+                    var markerData = markers.find(function(m) { return m.id === accountId; });
+                    if (markerData) {
+                        // Track location_map_interaction event for sidebar click
+                        var practiceData = {
+                            id: markerData.id,
+                            name: markerData.accountName || markerData.name,
+                            phone: markerData.phone || '',
+                            postalCode: markerData.postalCode || markerData.address || '',
+                            city: markerData.city || '',
+                            state: markerData.state || '',
+                            street: markerData.street || '',
+                            lat: markerData.lat,
+                            lng: markerData.lng
+                        };
+                        
+                        trackLocationMapInteraction(practiceData);
+                        
+                        var content = '<div class="custom-info-window">';
+                        content += '<h3 class="company-name">' + markerData.name + '</h3>';
+                        content += '<p class="address-info">Postal Code: ' + markerData.address + '</p>';
+                        if (markerData.phone) {
+                            content += '<p class="contact-info"><strong>Phone:</strong> <a href="tel:' + markerData.phone + '" class="phone-link" onclick="trackPhoneClick(\'' + markerData.id + '\', \'' + (markerData.accountName || markerData.name) + '\', \'' + markerData.phone + '\', \'' + (markerData.postalCode || markerData.address) + '\', \'' + (markerData.city || '') + '\', \'' + (markerData.state || '') + '\', \'' + (markerData.street || '') + '\', \'' + markerData.lat + '\', \'' + markerData.lng + '\')">' + markerData.phone + '</a></p>';
+                        }
+                        content += '</div>';
+                        
+                        var infoWindow = new google.maps.InfoWindow({
+                            content: content,
+                            maxWidth: 320,
+                            pixelOffset: new google.maps.Size(0, -10)
+                        });
+                        
+                        // Close currently open info window if exists
+                        if (currentInfoWindow) {
+                            currentInfoWindow.close();
+                        }
+                        
+                        // Open this info window and set as current
+                        infoWindow.open(map, marker);
+                        currentInfoWindow = infoWindow;
+                    }
                 }
             }
             
