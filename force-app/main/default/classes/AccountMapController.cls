@@ -243,6 +243,7 @@ global without sharing class AccountMapController {
                 (String.isNotBlank(acc.ShippingCity) && String.isNotBlank(acc.ShippingState) ? ', ' : '') +
                 (String.isNotBlank(acc.ShippingState) ? acc.ShippingState : '');
             m.put('name', displayName);
+            m.put('accountName', acc.Name); // Add actual Salesforce account name
             m.put('address', buildAddressString(acc));
             m.put('phone', acc.Phone != null ? acc.Phone : '');
             m.put('city', acc.ShippingCity != null ? acc.ShippingCity : '');

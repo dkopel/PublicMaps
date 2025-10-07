@@ -1,6 +1,14 @@
 <apex:page controller="AccountMapController" docType="html-5.0" showHeader="false" sidebar="false" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false" cache="false">
     <html>
     <head>
+        <!-- Google Tag Manager -->
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+        <!-- End Google Tag Manager -->
+        
         <!-- Fix InternalDialogs error immediately -->
         <script>
             if (typeof InternalDialogs === 'undefined') {
@@ -451,6 +459,9 @@
     </head>
     
     <body>
+        <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- End Google Tag Manager (noscript) -->
         
         <div class="main-container">
@@ -501,6 +512,88 @@
             var currentInfoWindow = null;
             var accountMarkers = {}; // Store markers by account ID
             var customIcon; // Will be initialized after Google Maps loads
+            
+            // GTM tracking variables
+            var zipCodeCentroid = null; // Store lat/lng of zip code centroid for radius search
+            
+            // GTM tracking functions
+            function trackGTMEvent(eventName, eventData) {
+                if (typeof dataLayer !== 'undefined') {
+                    dataLayer.push({
+                        'event': eventName,
+                        ...eventData
+                    });
+                    console.log('GTM Event tracked:', eventName, eventData);
+                } else {
+                    console.warn('GTM dataLayer not available');
+                }
+            }
+            
+            function trackLocationMapInteraction(practiceData) {
+                var eventData = {
+                    'practice_city': practiceData.city || '',
+                    'practice_name': practiceData.name || '',
+                    'practice_phone_number': practiceData.phone || '',
+                    'practice_postal_code': practiceData.postalCode || '',
+                    'practice_state': practiceData.state || '',
+                    'practice_street': practiceData.street || ''
+                };
+                
+                // Add zip code centroid and distance if available
+                if (zipCodeCentroid) {
+                    eventData.search_center_lat = zipCodeCentroid.lat;
+                    eventData.search_center_lng = zipCodeCentroid.lng;
+                    
+                    // Calculate distance from zip centroid to practice location if coordinates are available
+                    if (practiceData.lat && practiceData.lng) {
+                        var distance = calculateDistance(
+                            zipCodeCentroid.lat, 
+                            zipCodeCentroid.lng, 
+                            practiceData.lat, 
+                            practiceData.lng
+                        );
+                        eventData.distance = distance;
+                    }
+                }
+                
+                trackGTMEvent('location_map_interaction', eventData);
+            }
+            
+            function trackPhoneClick(accountId, accountName, phoneNumber, postalCode, city, state, lat, lng) {
+                var practiceData = {
+                    id: accountId,
+                    name: accountName,
+                    phone: phoneNumber,
+                    postalCode: postalCode,
+                    city: city,
+                    state: state,
+                    street: '', // Not available in current data structure
+                    lat: lat,
+                    lng: lng
+                };
+                
+                trackLocationMapInteraction(practiceData);
+            }
+            
+            // Calculate distance between two points using Google Maps geometry library
+            function calculateDistance(lat1, lng1, lat2, lng2) {
+                try {
+                    var point1 = new google.maps.LatLng(lat1, lng1);
+                    var point2 = new google.maps.LatLng(lat2, lng2);
+                    
+                    // Calculate distance in meters
+                    var distanceInMeters = google.maps.geometry.spherical.computeDistanceBetween(point1, point2);
+                    
+                    // Convert to miles (1 meter = 0.000621371 miles)
+                    var distanceInMiles = distanceInMeters * 0.000621371;
+                    
+                    // Round to 2 decimal places
+                    return Math.round(distanceInMiles * 100) / 100;
+                } catch (error) {
+                    console.error('Error calculating distance:', error);
+                    return null;
+                }
+            }
 
             function switchToStreetView(lat, lng) {
                 var position = {lat: lat, lng: lng};
@@ -657,6 +750,14 @@
                                 // Center map on zip code if provided
                                 if (data.center && postalCode) {
                                     console.log('Centering map on zip code ' + data.center.zip + ' at:', data.center.lat, data.center.lng);
+                                    
+                                    // Store zip code centroid for GTM tracking
+                                    zipCodeCentroid = {
+                                        lat: data.center.lat,
+                                        lng: data.center.lng,
+                                        zip: data.center.zip
+                                    };
+                                    
                                     map.setCenter({lat: data.center.lat, lng: data.center.lng});
                                     map.setZoom(12); // Good zoom level for city view
                                     
@@ -712,6 +813,15 @@
                 var distance = document.querySelector('select[id*="distance"]').value;
                 
                 console.log('Searching with postal code:', postalCode, 'distance:', distance);
+                
+                // Track location_map_search trigger
+                if (postalCode) {
+                    trackGTMEvent('location_map_search', {
+                        'postal_code': postalCode,
+                        'radius': distance
+                    });
+                }
+                
                 loadAccountsFromServer(postalCode, distance);
             }
             
@@ -916,9 +1026,9 @@
                     // Address
                     content += '<p class="address-info">Postal Code: ' + markerData.address + '</p>';
                     
-                    // Phone
+                    // Phone with GTM tracking
                     if (markerData.phone) {
-                        content += '<p class="contact-info"><strong>Phone:</strong> <a href="tel:' + markerData.phone + '" class="phone-link">' + markerData.phone + '</a></p>';
+                        content += '<p class="contact-info"><strong>Phone:</strong> <a href="tel:' + markerData.phone + '" class="phone-link" onclick="trackPhoneClick(\'' + markerData.id + '\', \'' + (markerData.accountName || markerData.name) + '\', \'' + markerData.phone + '\', \'' + (markerData.postalCode || markerData.address) + '\', \'' + (markerData.city || '') + '\', \'' + (markerData.state || '') + '\', \'' + markerData.lat + '\', \'' + markerData.lng + '\')">' + markerData.phone + '</a></p>';
                     }
                     
                     content += '</div>';
@@ -930,6 +1040,21 @@
                     });
                     
                     marker.addListener('click', function() {
+                        // Track location_map_click trigger
+                        var practiceData = {
+                            id: markerData.id,
+                            name: markerData.accountName || markerData.name, // Use actual account name if available
+                            phone: markerData.phone || '',
+                            postalCode: markerData.postalCode || markerData.address || '',
+                            city: markerData.city || '',
+                            state: markerData.state || '',
+                            street: '', // Not available in current data structure
+                            lat: markerData.lat,
+                            lng: markerData.lng
+                        };
+                        
+                        trackLocationMapInteraction(practiceData);
+                        
                         // Close currently open info window if exists
                         if (currentInfoWindow) {
                             currentInfoWindow.close();
