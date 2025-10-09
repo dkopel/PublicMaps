@@ -520,7 +520,11 @@
                     
                     // Add click listener for info window
                     var content = '<div class="custom-info-window">';
-                    content += '<div class="info-window-title">' + markerData.name + '</div>';
+                    if (markerData.indeedLink) {
+                        content += '<div class="info-window-title"><a href="' + markerData.indeedLink + '" target="_blank" style="color: #1a1a1a; text-decoration: none;">' + markerData.name + '</a></div>';
+                    } else {
+                        content += '<div class="info-window-title">' + markerData.name + '</div>';
+                    }
                     
                     if (markerData.startDate) {
                         content += '<div class="info-window-detail"><strong>Start:</strong> ' + formatDate(markerData.startDate) + '</div>';
@@ -625,7 +629,11 @@
                         html += '<div class="legend-item" onclick="selectRecord(\'' + record.id + '\')">';
                         html += '<div class="legend-marker" style="background-color: ' + groupColor + ';"></div>';
                         html += '<div class="legend-item-info">';
-                        html += '<div class="legend-item-name">' + record.name + '</div>';
+                        if (record.indeedLink) {
+                            html += '<div class="legend-item-name"><a href="' + record.indeedLink + '" target="_blank" style="color: #1a1a1a; text-decoration: none;">' + record.name + '</a></div>';
+                        } else {
+                            html += '<div class="legend-item-name">' + record.name + '</div>';
+                        }
                         
                         var details = [];
                         if (record.startDate) {

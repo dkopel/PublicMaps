@@ -46,6 +46,7 @@ global without sharing class MarketingMapController {
             row.put('type', 'Employee Placement Project');
             row.put('placementType', record.Employee_Placement_Type__c);
             row.put('description', 'Employee placement project');
+            row.put('indeedLink', record.Indeed_Link__c);
 
             String shortAddr = '';
             if (record.Account__r != null && String.isNotBlank(record.Account__r.ShippingCity) && String.isNotBlank(record.Account__r.ShippingState)) {
@@ -130,6 +131,7 @@ global without sharing class MarketingMapController {
                 m.put('type', 'Employee Placement Project');
                 m.put('placementType', record.Employee_Placement_Type__c);
                 m.put('description', 'Employee placement project');
+                m.put('indeedLink', record.Indeed_Link__c);
 
                 m.put('location', buildAddressString(record));
 
@@ -170,7 +172,7 @@ global without sharing class MarketingMapController {
                 : 'RecordType.Name = \'Employee Placement Project\' AND ' + whereCore;
 
             String soql =
-                'SELECT Id, Name, Employee_Placement_Type__c, ' +
+                'SELECT Id, Name, Employee_Placement_Type__c, Indeed_Link__c, ' +
                 '       Account__r.ShippingStreet, Account__r.ShippingCity, ' +
                 '       Account__r.ShippingState, Account__r.ShippingPostalCode, ' +
                 '       Account__r.geopointe__Geocode__r.geopointe__Latitude__c, ' +

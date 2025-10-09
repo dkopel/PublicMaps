@@ -6,7 +6,7 @@
         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
         j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+        })(window,document,'script','dataLayer','GTM-PM5QX8Q');</script>
         <!-- End Google Tag Manager -->
         
         <!-- Fix InternalDialogs error immediately -->
@@ -460,7 +460,7 @@
     
     <body>
         <!-- Google Tag Manager (noscript) -->
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PM5QX8Q"
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- End Google Tag Manager (noscript) -->
         
@@ -552,11 +552,11 @@
                             practiceData.lat, 
                             practiceData.lng
                         );
-                        eventData.distance = distance;
+                        eventData.practice_distance = distance;
                     }
                 }
                 
-                trackGTMEvent('location_map_interaction', eventData);
+                trackGTMEvent('location_map_click', eventData);
             }
             
             function trackFindLocationOnMapClick(practiceData) {
@@ -582,11 +582,11 @@
                             practiceData.lat, 
                             practiceData.lng
                         );
-                        eventData.distance = distance;
+                        eventData.practice_distance = distance;
                     }
                 }
                 
-                trackGTMEvent('find_location_on_map_click', eventData);
+                trackGTMEvent('location_map_click', eventData);
             }
             
             function trackPhoneClick(accountId, accountName, phoneNumber, postalCode, city, state, street, lat, lng) {
@@ -651,11 +651,16 @@
                 try {
                     console.log('Initializing map...');
                     
-                    // Initialize custom icon - using custom pushpin image from S3
+                    // Initialize custom icon - using teardrop shape with dark teal color
                     customIcon = {
-                        url: 'https://s3.amazonaws.com/62-75-78-74-6f-6e-63-6f-RandomStorage/106773_c629722d-2e92-41d4-980f-dbd46155dd24_PushPin2png.png',
-                        scaledSize: new google.maps.Size(32, 32),
-                        anchor: new google.maps.Point(16, 32)
+                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 32" width="15" height="20">
+                                <path d="M12 0C5.4 0 0 5.4 0 12c0 6.6 12 20 12 20s12-13.4 12-20C24 5.4 18.6 0 12 0z" fill="#224B53"/>
+                                <circle cx="12" cy="12" r="6" fill="#ffffff"/>
+                            </svg>
+                        `),
+                        scaledSize: new google.maps.Size(15, 20),
+                        anchor: new google.maps.Point(7.5, 20)
                     };
                     
                     var defaultCenter = {lat: 37.0902, lng: -95.7129};

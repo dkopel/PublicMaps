@@ -89,10 +89,11 @@ global without sharing class AccountMapController {
         for (Account acc : accounts) {
             Map<String, Object> row = new Map<String, Object>();
             row.put('id', acc.Id);
-            // Format display name as 'City, ST' for UI
-            String displayName = (String.isNotBlank(acc.ShippingCity) ? acc.ShippingCity : '') + 
+            // Format display name as 'GentleCure: City, ST' for UI
+            String cityState = (String.isNotBlank(acc.ShippingCity) ? acc.ShippingCity : '') + 
                 (String.isNotBlank(acc.ShippingCity) && String.isNotBlank(acc.ShippingState) ? ', ' : '') +
                 (String.isNotBlank(acc.ShippingState) ? acc.ShippingState : '');
+            String displayName = 'GentleCure: ' + cityState;
             row.put('name', displayName);
 
             // Only show first 5 digits of postal code since city and state are in the name
@@ -236,10 +237,11 @@ global without sharing class AccountMapController {
         for (Account acc : listToUse) {
             Map<String, Object> m = new Map<String, Object>();
             m.put('id', acc.Id);
-            // Format display name as 'City, ST' for UI
-            String displayName = (String.isNotBlank(acc.ShippingCity) ? acc.ShippingCity : '') + 
+            // Format display name as 'GentleCure: City, ST' for UI
+            String cityState = (String.isNotBlank(acc.ShippingCity) ? acc.ShippingCity : '') + 
                 (String.isNotBlank(acc.ShippingCity) && String.isNotBlank(acc.ShippingState) ? ', ' : '') +
                 (String.isNotBlank(acc.ShippingState) ? acc.ShippingState : '');
+            String displayName = 'GentleCure: ' + cityState;
             m.put('name', displayName);
             m.put('accountName', acc.Name); // Actual Salesforce account name for GTM tracking
             m.put('address', buildAddressString(acc));
