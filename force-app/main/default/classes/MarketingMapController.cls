@@ -31,14 +31,14 @@ global without sharing class MarketingMapController {
             if (!settingsList.isEmpty() && settingsList[0].get('Google_Public_Map_Key__c') != null) {
                 googleMapsApiKey = String.valueOf(settingsList[0].get('Google_Public_Map_Key__c'));
             } else {
-                // Fallback to hardcoded key if setting not found
-                googleMapsApiKey = 'AIzaSyB862RKAXAKYskd3QzSS7i9YMxxHVpCk8M';
-                System.debug('Warning: Using fallback API key - configure geopointe__Settings2__c.Google_Public_Map_Key__c');
+                // No fallback - show configuration error
+                googleMapsApiKey = 'CONFIGURATION_ERROR';
+                System.debug('ERROR: Google Maps API key not configured in geopointe__Settings2__c.Google_Public_Map_Key__c');
             }
         } catch (Exception e) {
-            // Fallback to hardcoded key on error
-            googleMapsApiKey = 'AIzaSyB862RKAXAKYskd3QzSS7i9YMxxHVpCk8M';
-            System.debug('Error retrieving Google Maps API key, using fallback: ' + e.getMessage());
+            // No fallback - show configuration error
+            googleMapsApiKey = 'CONFIGURATION_ERROR';
+            System.debug('ERROR: Failed to retrieve Google Maps API key from custom settings: ' + e.getMessage());
         }
     }
 

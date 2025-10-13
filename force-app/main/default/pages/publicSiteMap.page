@@ -430,7 +430,7 @@
             }
         </style>
         
-        <script src="https://maps.googleapis.com/maps/api/js?key={!googleMapsApiKey}&libraries=places,geometry&loading=async&callback=initMap"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key={!googleMapsApiKey}&libraries=geometry&loading=async&callback=initMap"></script>
         
         <script>
             // Configure VFRemote
