@@ -1,5 +1,9 @@
 global without sharing class MarketingMapController {
 
+    // ===== API KEY - CHANGE HERE =====
+    private static final String GOOGLE_MAPS_API_KEY = 'AIzaSyD2ZQt1u4KOCWRN5UAz1t2QgiJoY1ysQQw';
+    // =================================
+
     public transient List<Project__c> projectRecords { get; set; }
     public transient String projectJSON { get; set; }
     public String googleMapsApiKey { get; private set; }
@@ -21,25 +25,7 @@ global without sharing class MarketingMapController {
     }
 
     public void setApiKey() {
-        try {
-            // Retrieve API key from custom settings
-            // Using dynamic query to avoid compilation dependency on managed package
-            List<SObject> settingsList = Database.query(
-                'SELECT Google_Public_Map_Key__c FROM geopointe__Settings2__c LIMIT 1'
-            );
-            
-            if (!settingsList.isEmpty() && settingsList[0].get('Google_Public_Map_Key__c') != null) {
-                googleMapsApiKey = String.valueOf(settingsList[0].get('Google_Public_Map_Key__c'));
-            } else {
-                // No fallback - show configuration error
-                googleMapsApiKey = 'CONFIGURATION_ERROR';
-                System.debug('ERROR: Google Maps API key not configured in geopointe__Settings2__c.Google_Public_Map_Key__c');
-            }
-        } catch (Exception e) {
-            // No fallback - show configuration error
-            googleMapsApiKey = 'CONFIGURATION_ERROR';
-            System.debug('ERROR: Failed to retrieve Google Maps API key from custom settings: ' + e.getMessage());
-        }
+        googleMapsApiKey = GOOGLE_MAPS_API_KEY;
     }
 
     private List<Map<String, Object>> createOptimizedMapData() {
@@ -101,6 +87,7 @@ global without sharing class MarketingMapController {
     }
 
     // Helper methods
+    @TestVisible
     private static String buildAddressString(Project__c record) {
         List<String> parts = new List<String>();
         if (record.Account__r != null) {
@@ -113,6 +100,7 @@ global without sharing class MarketingMapController {
     }
     
     // Determine if a position should appear on the map
+    @TestVisible
     private static Boolean shouldPositionAppearOnMap(String placementType) {
         if (String.isBlank(placementType)) return true;
         
@@ -121,6 +109,7 @@ global without sharing class MarketingMapController {
     }
     
     // Build display name based on position type
+    @TestVisible
     private static String buildDisplayName(Project__c record, String placementType) {
         if (String.isBlank(placementType)) {
             return record.Name;

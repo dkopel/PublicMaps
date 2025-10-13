@@ -430,8 +430,6 @@
             }
         </style>
         
-        <script src="https://maps.googleapis.com/maps/api/js?key={!googleMapsApiKey}&libraries=geometry&loading=async&callback=initMap"></script>
-        
         <script>
             // Configure VFRemote
             if (typeof Visualforce !== 'undefined' && Visualforce.remoting) {
@@ -652,10 +650,10 @@
                     console.log('Initializing map...');
                     
                     // Initialize custom icon using the provided SkinCure image
+                    // For AdvancedMarkerElement, we'll create the img element for each marker
                     customIcon = {
                         url: 'https://skincureoncology--full.sandbox.my.salesforce.com/servlet/servlet.ImageServer?id=015VE00000G62tx&oid=00DVE000007R8yL&lastMod=1760046579000',
-                        scaledSize: new google.maps.Size(77, 77),
-                        anchor: new google.maps.Point(38.5, 38.5)
+                        size: 77
                     };
                     
                     var defaultCenter = {lat: 37.0902, lng: -95.7129};
@@ -670,6 +668,7 @@
                     var isMobile = window.innerWidth <= 768;
                     
                     map = new google.maps.Map(mapElement, {
+                        mapId: 'SKINCURE_PUBLIC_MAP', // Required for AdvancedMarkerElement
                         zoom: isMobile ? 3 : 4,
                         center: defaultCenter,
                         mapTypeControl: !isMobile,
@@ -794,23 +793,22 @@
                                     
                                     // Add a center marker to show the search center
                                     if (window.centerMarker) {
-                                        window.centerMarker.setMap(null);
+                                        window.centerMarker.map = null;
                                     }
                                     
-                                    window.centerMarker = new google.maps.Marker({
+                                    // Create pin for center marker (red color)
+                                    var centerPin = new google.maps.marker.PinElement({
+                                        background: '#ff4444',
+                                        borderColor: '#fff',
+                                        glyphColor: '#fff',
+                                        scale: 1.2
+                                    });
+                                    
+                                    window.centerMarker = new google.maps.marker.AdvancedMarkerElement({
                                         position: {lat: data.center.lat, lng: data.center.lng},
                                         map: map,
                                         title: 'Search Center: ' + data.center.zip,
-                                        icon: {
-                                            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                                    <circle cx="12" cy="12" r="8" fill="#ff4444" stroke="#fff" stroke-width="2"/>
-                                                    <circle cx="12" cy="12" r="3" fill="#fff"/>
-                                                </svg>
-                                            `),
-                                            scaledSize: new google.maps.Size(24, 24),
-                                            anchor: new google.maps.Point(12, 12)
-                                        }
+                                        content: centerPin.element
                                     });
                                 }
                                 
@@ -1034,11 +1032,17 @@
                         lng: parseFloat(markerData.lng)
                     };
                     
-                    var marker = new google.maps.Marker({
+                    // Create custom icon element for AdvancedMarkerElement
+                    var iconImg = document.createElement('img');
+                    iconImg.src = customIcon.url;
+                    iconImg.style.width = customIcon.size + 'px';
+                    iconImg.style.height = customIcon.size + 'px';
+                    
+                    var marker = new google.maps.marker.AdvancedMarkerElement({
                         position: position,
                         map: map,
                         title: markerData.name,
-                        icon: customIcon
+                        content: iconImg
                     });
                     
                     validMarkers++;
@@ -1092,7 +1096,11 @@
                         }
                         
                         // Open this marker's info window and set as current
-                        markerInfoWindow.open(map, marker);
+                        // AdvancedMarkerElement uses different open() syntax
+                        markerInfoWindow.open({
+                            anchor: marker,
+                            map: map
+                        });
                         currentInfoWindow = markerInfoWindow;
                     });
                 });
@@ -1124,7 +1132,7 @@
             
             function clearMarkers() {
                 for (var i = 0; i < googleMarkers.length; i++) {
-                    googleMarkers[i].setMap(null);
+                    googleMarkers[i].map = null; // AdvancedMarkerElement uses .map property
                 }
                 googleMarkers = [];
                 accountMarkers = {};
@@ -1134,8 +1142,9 @@
                 // Find the marker for this account and track location_map_interaction event
                 var marker = accountMarkers[accountId];
                 if (marker) {
-                    var position = marker.getPosition();
-                    zoomToLocation(position.lat(), position.lng(), 12);
+                    // AdvancedMarkerElement uses .position property (not .getPosition())
+                    var position = marker.position;
+                    zoomToLocation(position.lat, position.lng, 12);
                     
                     // Find the marker data to create info window content and track event
                     var markerData = markers.find(function(m) { return m.id === accountId; });
@@ -1175,7 +1184,11 @@
                         }
                         
                         // Open this info window and set as current
-                        infoWindow.open(map, marker);
+                        // AdvancedMarkerElement uses different open() syntax
+                        infoWindow.open({
+                            anchor: marker,
+                            map: map
+                        });
                         currentInfoWindow = infoWindow;
                     }
                 }
@@ -1262,6 +1275,9 @@
             // initMap is now called automatically by Google Maps API callback
             // No need for window.onload since we're using callback=initMap in the script tag
         </script>
+        
+        <!-- Load Google Maps API AFTER initMap is defined -->
+        <script src="https://maps.googleapis.com/maps/api/js?key={!googleMapsApiKey}&libraries=geometry,marker&loading=async&callback=initMap"></script>
     </body>
     </html>
 </apex:page>

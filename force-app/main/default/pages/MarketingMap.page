@@ -385,8 +385,6 @@
             }
         </style>
         
-        <script src="https://maps.googleapis.com/maps/api/js?key={!googleMapsApiKey}&loading=async&callback=initMap"></script>
-        
         <script>
             // Fix InternalDialogs error
             if (typeof InternalDialogs === 'undefined') {
@@ -497,6 +495,7 @@
                     }
                     
                     map = new google.maps.Map(mapElement, {
+                        mapId: 'SKINCURE_MARKETING_MAP', // Required for AdvancedMarkerElement
                         zoom: 4, // Show whole US
                         center: defaultCenter,
                         mapTypeControl: true,
@@ -601,26 +600,24 @@
                     // Get color for this placement type
                     var markerColor = getPlacementTypeColor(markerData.placementType);
                     
-                    // Create custom colored marker icon
-                    var markerIcon = {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 8,
-                        fillColor: markerColor,
-                        fillOpacity: 1,
-                        strokeColor: '#ffffff',
-                        strokeWeight: 2
-                    };
-                    
                     // Check if this group is hidden
                     var placementType = markerData.placementType || 'Other';
                     var isHidden = hiddenGroups.has(placementType);
                     
+                    // Create custom colored pin for AdvancedMarkerElement
+                    var pin = new google.maps.marker.PinElement({
+                        background: markerColor,
+                        borderColor: '#ffffff',
+                        glyphColor: '#ffffff',
+                        scale: 1.0
+                    });
+                    
                     // Create marker with colored icon
-                    var marker = new google.maps.Marker({
+                    var marker = new google.maps.marker.AdvancedMarkerElement({
                         position: position,
                         map: isHidden ? null : map, // Don't show on map if group is hidden
                         title: markerData.name,
-                        icon: markerIcon
+                        content: pin.element
                     });
                     
                     googleMarkers.push(marker);
@@ -677,7 +674,11 @@
                         }
                         
                         // Open this marker's info window and set as current
-                        markerInfoWindow.open(map, marker);
+                        // AdvancedMarkerElement uses different open() syntax
+                        markerInfoWindow.open({
+                            anchor: marker,
+                            map: map
+                        });
                         currentInfoWindow = markerInfoWindow;
                     });
                 });
@@ -688,7 +689,7 @@
             
             function clearMarkers() {
                 for (var i = 0; i < googleMarkers.length; i++) {
-                    googleMarkers[i].setMap(null);
+                    googleMarkers[i].map = null; // AdvancedMarkerElement uses .map property
                 }
                 googleMarkers = [];
                 recordMarkers = {};
@@ -942,10 +943,12 @@
                 // Find the marker for this record and center on it
                 var marker = recordMarkers[recordId];
                 if (marker) {
-                    var position = marker.getPosition();
+                    // AdvancedMarkerElement uses .position property (not .getPosition())
+                    var position = marker.position;
                     map.setCenter(position);
                     map.setZoom(12);
-                    google.maps.event.trigger(marker, 'click');
+                    // Trigger click event on the marker
+                    marker.content.click();
                 } else {
                     // For records that don't appear on map (National positions), just center on US
                     map.setCenter({lat: 39.8283, lng: -98.5795});
@@ -1008,7 +1011,7 @@
                     // Show markers for this group
                     if (markersByGroup[placementType]) {
                         markersByGroup[placementType].forEach(function(item) {
-                            item.marker.setMap(map);
+                            item.marker.map = map; // AdvancedMarkerElement uses .map property
                         });
                     }
                 } else {
@@ -1016,7 +1019,7 @@
                     // Hide markers for this group
                     if (markersByGroup[placementType]) {
                         markersByGroup[placementType].forEach(function(item) {
-                            item.marker.setMap(null);
+                            item.marker.map = null; // AdvancedMarkerElement uses .map property
                         });
                     }
                 }
@@ -1062,6 +1065,9 @@
                 }
             }
         </script>
+        
+        <!-- Load Google Maps API AFTER initMap is defined -->
+        <script src="https://maps.googleapis.com/maps/api/js?key={!googleMapsApiKey}&libraries=marker&loading=async&callback=initMap"></script>
     </body>
     </html>
 </apex:page>

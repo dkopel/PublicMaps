@@ -1,5 +1,10 @@
 global without sharing class AccountMapController {
 
+    // ===== API KEYS - CHANGE HERE =====
+    private static final String GOOGLE_MAPS_API_KEY = 'AIzaSyD2ZQt1u4KOCWRN5UAz1t2QgiJoY1ysQQw';
+    private static final String SHAPE_LIBRARY_API_KEY = '045ciO04sJmBHDZ4JGF0m4hbYG600fK8Uss2MrgRmkDUf';
+    // ==================================
+
     // Cache for all accounts
     private static List<Account> allAccountsCache;
     
@@ -28,25 +33,7 @@ global without sharing class AccountMapController {
     }
 
     public void setApiKey() {
-        try {
-            // Retrieve API key from custom settings
-            // Using dynamic query to avoid compilation dependency on managed package
-            List<SObject> settingsList = Database.query(
-                'SELECT Google_Public_Map_Key__c FROM geopointe__Settings2__c LIMIT 1'
-            );
-            
-            if (!settingsList.isEmpty() && settingsList[0].get('Google_Public_Map_Key__c') != null) {
-                apiKey = String.valueOf(settingsList[0].get('Google_Public_Map_Key__c'));
-            } else {
-                // No fallback - show configuration error
-                apiKey = 'CONFIGURATION_ERROR';
-                System.debug('ERROR: Google Maps API key not configured in geopointe__Settings2__c.Google_Public_Map_Key__c');
-            }
-        } catch (Exception e) {
-            // No fallback - show configuration error
-            apiKey = 'CONFIGURATION_ERROR';
-            System.debug('ERROR: Failed to retrieve Google Maps API key from custom settings: ' + e.getMessage());
-        }
+        apiKey = GOOGLE_MAPS_API_KEY;
     }
 
     private void initializeDistanceOptions() {
@@ -180,32 +167,8 @@ global without sharing class AccountMapController {
             });
         }
 
-        // Retrieve Shape Library API key from custom settings
-        String shapeLibraryApiKey = '';
-        try {
-            // Using dynamic query to avoid compilation dependency on managed package
-            List<SObject> settingsList = Database.query(
-                'SELECT Geopointe_Shape_Library_Key__c FROM geopointe__Settings2__c LIMIT 1'
-            );
-            
-            if (!settingsList.isEmpty() && settingsList[0].get('Geopointe_Shape_Library_Key__c') != null) {
-                shapeLibraryApiKey = String.valueOf(settingsList[0].get('Geopointe_Shape_Library_Key__c'));
-            } else {
-                // No fallback - return configuration error
-                System.debug('ERROR: Shape Library API key not configured in geopointe__Settings2__c.Geopointe_Shape_Library_Key__c');
-                return JSON.serialize(new Map<String, Object>{
-                    'success' => false,
-                    'error' => 'Shape Library API key not configured. Please configure geopointe__Settings2__c.Geopointe_Shape_Library_Key__c in Setup > Custom Settings.'
-                });
-            }
-        } catch (Exception e) {
-            // No fallback - return configuration error
-            System.debug('ERROR: Failed to retrieve Shape Library API key from custom settings: ' + e.getMessage());
-            return JSON.serialize(new Map<String, Object>{
-                'success' => false,
-                'error' => 'Error retrieving Shape Library API key configuration: ' + e.getMessage()
-            });
-        }
+        // Use hardcoded Shape Library API key
+        String shapeLibraryApiKey = SHAPE_LIBRARY_API_KEY;
 
         // Setup API request
         HttpRequest req = new HttpRequest();

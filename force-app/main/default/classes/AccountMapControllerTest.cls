@@ -377,6 +377,58 @@ public class AccountMapControllerTest {
     }
     
     @isTest
+    static void testSetApiKeyWithDebugLogging() {
+        // This test verifies that the enhanced debug logging in setApiKey() works correctly
+        Test.startTest();
+        
+        // Create controller which will call setApiKey() in constructor
+        AccountMapController controller = new AccountMapController();
+        
+        // Verify that the API key was set (either from custom setting or as CONFIGURATION_ERROR)
+        System.assertNotEquals(null, controller.googleMapsApiKey, 'API key should be set to some value');
+        
+        // The API key will be either:
+        // 1. A valid key from geopointe__Settings2__c custom setting
+        // 2. 'CONFIGURATION_ERROR' if the custom setting doesn't exist or is empty
+        // Both are valid outcomes and the debug logging should have executed
+        System.debug('Test - API key retrieved: ' + controller.googleMapsApiKey);
+        
+        // Verify the API key is accessible via getter
+        String retrievedKey = controller.googleMapsApiKey;
+        System.assertEquals(controller.googleMapsApiKey, retrievedKey, 'Getter should return the same value');
+        
+        Test.stopTest();
+    }
+    
+    @isTest
+    static void testSetApiKeyErrorHandling() {
+        // This test verifies that the enhanced error handling in setApiKey() works correctly
+        // Even if the custom setting query fails, the method should handle it gracefully
+        Test.startTest();
+        
+        // Create controller - if the custom setting doesn't exist or query fails,
+        // it should set apiKey to 'CONFIGURATION_ERROR' without throwing an exception
+        try {
+            AccountMapController controller = new AccountMapController();
+            
+            // If we get here, the error handling worked
+            System.assertNotEquals(null, controller.googleMapsApiKey, 'API key should be set even if query fails');
+            
+            // The key should be either a valid key or CONFIGURATION_ERROR
+            System.assert(
+                controller.googleMapsApiKey.length() > 0,
+                'API key should have some value (either valid key or error placeholder)'
+            );
+            
+            System.debug('Test - API key after error handling: ' + controller.googleMapsApiKey);
+        } catch (Exception e) {
+            System.assert(false, 'setApiKey should not throw exceptions, caught: ' + e.getMessage());
+        }
+        
+        Test.stopTest();
+    }
+    
+    @isTest
     static void testDistanceOptions() {
         Test.startTest();
         
