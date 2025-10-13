@@ -653,7 +653,7 @@
                     // For AdvancedMarkerElement, we store just the URL and size
                     customIcon = {
                         url: 'https://skincureoncology--full.sandbox.my.salesforce.com/servlet/servlet.ImageServer?id=015VE00000G8xmT&oid=00DVE000007R8yL&lastMod=1760389737000',
-                        size: 50
+                        size: 30
                     };
                     
                     var defaultCenter = {lat: 37.0902, lng: -95.7129};
