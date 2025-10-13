@@ -1,9 +1,8 @@
 global without sharing class AccountMapController {
 
-    // ===== API KEYS - CHANGE HERE =====
+    // ===== API KEY - CHANGE HERE =====
     private static final String GOOGLE_MAPS_API_KEY = 'AIzaSyD2ZQt1u4KOCWRN5UAz1t2QgiJoY1ysQQw';
-    private static final String SHAPE_LIBRARY_API_KEY = '045ciO04sJmBHDZ4JGF0m4hbYG600fK8Uss2MrgRmkDUf';
-    // ==================================
+    // =================================
 
     // Cache for all accounts
     private static List<Account> allAccountsCache;
@@ -167,25 +166,22 @@ global without sharing class AccountMapController {
             });
         }
 
-        // Use hardcoded Shape Library API key
-        String shapeLibraryApiKey = SHAPE_LIBRARY_API_KEY;
-
-        // Setup API request
+        // Setup API request to Geopointe public endpoint (no token required)
         HttpRequest req = new HttpRequest();
-        req.setEndpoint('https://shape-api-gateway.dev.services.ascentcloud-api.io/getShapes/featureCollection');
+        req.setEndpoint('https://api.geopointe.io/v2/geoShapes/getshapes');
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
-        req.setHeader('X-GEOPOINTE-API-TOKEN', shapeLibraryApiKey);
         req.setHeader('x-application-name', 'geopointe');
-        req.setHeader('x-user-id', '005O800000IAAS9IAP');
-        req.setHeader('x-organization-id', '00DEk00000OOV8GMAX');
+        req.setHeader('x-user-id', UserInfo.getUserId());
+        req.setHeader('x-organization-id', UserInfo.getOrganizationId());
         
         // Build request body
         Map<String, Object> requestBody = new Map<String, Object>{
             'search' => zipCode,
             'type' => 'ZIP Code (USPS)',
-            'fields' => new List<String>{'id', 'type', 'geometry'},
-            'geometry' => true
+            'fields' => 'id,type,geometry',
+            'geometry' => 'true',
+            'featureCollection' => true
         };
         
         req.setBody(JSON.serialize(requestBody));
