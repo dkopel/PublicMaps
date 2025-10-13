@@ -604,7 +604,7 @@
                     var placementType = markerData.placementType || 'Other';
                     var isHidden = hiddenGroups.has(placementType);
                     
-                    // Create custom colored pin for AdvancedMarkerElement
+                    // Create marker with colored pin
                     var pin = new google.maps.marker.PinElement({
                         background: markerColor,
                         borderColor: '#ffffff',
@@ -612,7 +612,6 @@
                         scale: 1.0
                     });
                     
-                    // Create marker with colored icon
                     var marker = new google.maps.marker.AdvancedMarkerElement({
                         position: position,
                         map: isHidden ? null : map, // Don't show on map if group is hidden
@@ -671,10 +670,10 @@
                         // Close currently open info window if exists
                         if (currentInfoWindow) {
                             currentInfoWindow.close();
+                            currentInfoWindow = null;
                         }
                         
                         // Open this marker's info window and set as current
-                        // AdvancedMarkerElement uses different open() syntax
                         markerInfoWindow.open({
                             anchor: marker,
                             map: map
@@ -943,12 +942,11 @@
                 // Find the marker for this record and center on it
                 var marker = recordMarkers[recordId];
                 if (marker) {
-                    // AdvancedMarkerElement uses .position property (not .getPosition())
-                    var position = marker.position;
+                    var position = marker.position; // AdvancedMarkerElement uses .position property
                     map.setCenter(position);
                     map.setZoom(12);
                     // Trigger click event on the marker
-                    marker.content.click();
+                    marker.content.click(); // AdvancedMarkerElement uses content.click()
                 } else {
                     // For records that don't appear on map (National positions), just center on US
                     map.setCenter({lat: 39.8283, lng: -98.5795});
