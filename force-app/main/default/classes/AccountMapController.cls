@@ -28,7 +28,25 @@ global without sharing class AccountMapController {
     }
 
     public void setApiKey() {
-        apiKey = 'AIzaSyB862RKAXAKYskd3QzSS7i9YMxxHVpCk8M';
+        try {
+            // Retrieve API key from custom settings
+            // Using dynamic query to avoid compilation dependency on managed package
+            List<SObject> settingsList = Database.query(
+                'SELECT Google_Public_Map_Key__c FROM geopointe__Settings2__c LIMIT 1'
+            );
+            
+            if (!settingsList.isEmpty() && settingsList[0].get('Google_Public_Map_Key__c') != null) {
+                apiKey = String.valueOf(settingsList[0].get('Google_Public_Map_Key__c'));
+            } else {
+                // Fallback to hardcoded key if setting not found
+                apiKey = 'AIzaSyB862RKAXAKYskd3QzSS7i9YMxxHVpCk8M';
+                System.debug('Warning: Using fallback API key - configure geopointe__Settings2__c.Google_Public_Map_Key__c');
+            }
+        } catch (Exception e) {
+            // Fallback to hardcoded key on error
+            apiKey = 'AIzaSyB862RKAXAKYskd3QzSS7i9YMxxHVpCk8M';
+            System.debug('Error retrieving Google Maps API key, using fallback: ' + e.getMessage());
+        }
     }
 
     private void initializeDistanceOptions() {
@@ -162,12 +180,33 @@ global without sharing class AccountMapController {
             });
         }
 
+        // Retrieve Shape Library API key from custom settings
+        String shapeLibraryApiKey = '';
+        try {
+            // Using dynamic query to avoid compilation dependency on managed package
+            List<SObject> settingsList = Database.query(
+                'SELECT Geopointe_Shape_Library_Key__c FROM geopointe__Settings2__c LIMIT 1'
+            );
+            
+            if (!settingsList.isEmpty() && settingsList[0].get('Geopointe_Shape_Library_Key__c') != null) {
+                shapeLibraryApiKey = String.valueOf(settingsList[0].get('Geopointe_Shape_Library_Key__c'));
+            } else {
+                // Fallback to hardcoded key if setting not found
+                shapeLibraryApiKey = '045ciO04sJmBHDZ4JGF0m4hbYG600fK8Uss2MrgRmkDUf';
+                System.debug('Warning: Using fallback Shape Library API key - configure geopointe__Settings2__c.Geopointe_Shape_Library_Key__c');
+            }
+        } catch (Exception e) {
+            // Fallback to hardcoded key on error
+            shapeLibraryApiKey = '045ciO04sJmBHDZ4JGF0m4hbYG600fK8Uss2MrgRmkDUf';
+            System.debug('Error retrieving Shape Library API key, using fallback: ' + e.getMessage());
+        }
+
         // Setup API request
         HttpRequest req = new HttpRequest();
         req.setEndpoint('https://shape-api-gateway.dev.services.ascentcloud-api.io/getShapes/featureCollection');
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
-        req.setHeader('X-GEOPOINTE-API-TOKEN', '045ciO04sJmBHDZ4JGF0m4hbYG600fK8Uss2MrgRmkDUf');
+        req.setHeader('X-GEOPOINTE-API-TOKEN', shapeLibraryApiKey);
         req.setHeader('x-application-name', 'geopointe');
         req.setHeader('x-user-id', '005O800000IAAS9IAP');
         req.setHeader('x-organization-id', '00DEk00000OOV8GMAX');

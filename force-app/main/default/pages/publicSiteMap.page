@@ -651,16 +651,11 @@
                 try {
                     console.log('Initializing map...');
                     
-                    // Initialize custom icon - using teardrop shape with dark teal color
+                    // Initialize custom icon using the provided SkinCure image
                     customIcon = {
-                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 32" width="15" height="20">
-                                <path d="M12 0C5.4 0 0 5.4 0 12c0 6.6 12 20 12 20s12-13.4 12-20C24 5.4 18.6 0 12 0z" fill="#224B53"/>
-                                <circle cx="12" cy="12" r="6" fill="#ffffff"/>
-                            </svg>
-                        `),
-                        scaledSize: new google.maps.Size(15, 20),
-                        anchor: new google.maps.Point(7.5, 20)
+                        url: 'https://skincureoncology--full.sandbox.my.salesforce.com/servlet/servlet.ImageServer?id=015VE00000G62tx&oid=00DVE000007R8yL&lastMod=1760046579000',
+                        scaledSize: new google.maps.Size(77, 77),
+                        anchor: new google.maps.Point(38.5, 38.5)
                     };
                     
                     var defaultCenter = {lat: 37.0902, lng: -95.7129};

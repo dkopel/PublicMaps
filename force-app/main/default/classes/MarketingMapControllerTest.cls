@@ -247,20 +247,32 @@ public class MarketingMapControllerTest {
         // Bypass RecordType filter for tests
         MarketingMapController.BYPASS_RECORDTYPE_FILTER = true;
         
-        // Don't inject - let the actual query run
-        MarketingMapController.INJECT_RECORDS = null;
+        // Use mock data with proper geocode relationships
+        List<Project__c> mockProjects = getMockProjectsWithGeocode();
+        MarketingMapController.INJECT_RECORDS = mockProjects;
         
         String payload = MarketingMapController.getMarketingData();
         Map<String,Object> res = (Map<String,Object>) JSON.deserializeUntyped(payload);
         List<Object> records = (List<Object>)res.get('records');
 
-        // Check that IF records are returned, they all have lat/lng
-        // (the query may return 0 records in test context due to relationship limitations)
+        // Check that records returned have proper structure
+        // The controller filters records in createOptimizedMapData():
+        // - Records with shouldShowOnMap=true are only added if they have coordinates
+        // - Records with shouldShowOnMap=false (National) are added without coordinates
         System.assert(records.size() >= 0, 'Should have valid list');
+        
         for (Object o : records) {
             Map<String,Object> m = (Map<String,Object>)o;
-            System.assertNotEquals(null, m.get('lat'), 'Included row must have lat');
-            System.assertNotEquals(null, m.get('lng'), 'Included row must have lng');
+            Boolean shouldShowOnMap = (Boolean)m.get('shouldShowOnMap');
+            
+            // The controller's logic ensures:
+            // 1. If shouldShowOnMap=true, the record MUST have coordinates (otherwise it wouldn't be added)
+            // 2. If shouldShowOnMap=false, the record MAY or MAY NOT have coordinates
+            if (shouldShowOnMap == true) {
+                System.assertNotEquals(null, m.get('lat'), 'Records with shouldShowOnMap=true must have lat');
+                System.assertNotEquals(null, m.get('lng'), 'Records with shouldShowOnMap=true must have lng');
+            }
+            // National positions (shouldShowOnMap=false) may not have coordinates - that's expected
         }
     }
 

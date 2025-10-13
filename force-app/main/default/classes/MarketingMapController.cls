@@ -21,7 +21,25 @@ global without sharing class MarketingMapController {
     }
 
     public void setApiKey() {
-        googleMapsApiKey = 'AIzaSyB862RKAXAKYskd3QzSS7i9YMxxHVpCk8M';
+        try {
+            // Retrieve API key from custom settings
+            // Using dynamic query to avoid compilation dependency on managed package
+            List<SObject> settingsList = Database.query(
+                'SELECT Google_Public_Map_Key__c FROM geopointe__Settings2__c LIMIT 1'
+            );
+            
+            if (!settingsList.isEmpty() && settingsList[0].get('Google_Public_Map_Key__c') != null) {
+                googleMapsApiKey = String.valueOf(settingsList[0].get('Google_Public_Map_Key__c'));
+            } else {
+                // Fallback to hardcoded key if setting not found
+                googleMapsApiKey = 'AIzaSyB862RKAXAKYskd3QzSS7i9YMxxHVpCk8M';
+                System.debug('Warning: Using fallback API key - configure geopointe__Settings2__c.Google_Public_Map_Key__c');
+            }
+        } catch (Exception e) {
+            // Fallback to hardcoded key on error
+            googleMapsApiKey = 'AIzaSyB862RKAXAKYskd3QzSS7i9YMxxHVpCk8M';
+            System.debug('Error retrieving Google Maps API key, using fallback: ' + e.getMessage());
+        }
     }
 
     private List<Map<String, Object>> createOptimizedMapData() {
@@ -30,37 +48,52 @@ global without sharing class MarketingMapController {
             Map<String, Object> row = new Map<String, Object>();
             row.put('id', record.Id);
 
-            // Build display name
-            String displayName = '';
-            if (record.Account__r != null) {
-                if (String.isNotBlank(record.Account__r.ShippingCity) && String.isNotBlank(record.Account__r.ShippingState)) {
-                    displayName = record.Account__r.ShippingCity + ', ' + record.Account__r.ShippingState;
-                }
-            }
-            if (String.isBlank(displayName)) {
-                displayName = record.Name;
-            }
+            // Determine if this position should appear on the map
+            String placementType = record.Employee_Placement_Type__c;
+            Boolean shouldShowOnMap = shouldPositionAppearOnMap(placementType);
+            
+            // Build display name based on position type
+            String displayName = buildDisplayName(record, placementType);
             row.put('name', displayName);
             row.put('startDate', null);
             row.put('endDate', null);
             row.put('type', 'Employee Placement Project');
-            row.put('placementType', record.Employee_Placement_Type__c);
+            row.put('placementType', placementType);
             row.put('description', 'Employee placement project');
             row.put('indeedLink', record.Indeed_Link__c);
+            row.put('shouldShowOnMap', shouldShowOnMap);
+            
+            // Add postal code for info window
+            String postalCode = '';
+            if (record.Account__r != null && String.isNotBlank(record.Account__r.ShippingPostalCode)) {
+                postalCode = record.Account__r.ShippingPostalCode;
+            }
+            row.put('postalCode', postalCode);
 
             String shortAddr = '';
-            if (record.Account__r != null && String.isNotBlank(record.Account__r.ShippingCity) && String.isNotBlank(record.Account__r.ShippingState)) {
+            if (shouldShowOnMap && record.Account__r != null && String.isNotBlank(record.Account__r.ShippingCity) && String.isNotBlank(record.Account__r.ShippingState)) {
                 shortAddr = record.Account__r.ShippingCity + ', ' + record.Account__r.ShippingState;
                 if (String.isNotBlank(record.Account__r.ShippingPostalCode)) shortAddr += ' ' + record.Account__r.ShippingPostalCode;
+            } else if (!shouldShowOnMap && record.Account__r != null && String.isNotBlank(record.Account__r.Senior_Director_Territory__c)) {
+                // For National positions, use Senior Director Territory from Account
+                shortAddr = record.Account__r.Senior_Director_Territory__c;
             }
             row.put('address', shortAddr);
             row.put('location', shortAddr);
 
+            // Add lat/lng if available
             if (record.Account__r != null && record.Account__r.geopointe__Geocode__r != null &&
                 record.Account__r.geopointe__Geocode__r.geopointe__Latitude__c != null &&
                 record.Account__r.geopointe__Geocode__r.geopointe__Longitude__c != null) {
                 row.put('lat', record.Account__r.geopointe__Geocode__r.geopointe__Latitude__c);
                 row.put('lng', record.Account__r.geopointe__Geocode__r.geopointe__Longitude__c);
+            }
+            
+            // Only add to map data if it should show on map and has coordinates, OR if it's a National position
+            if (shouldShowOnMap && row.get('lat') != null && row.get('lng') != null) {
+                mapData.add(row);
+            } else if (!shouldShowOnMap) {
+                // Add to map data even if not showing on map for sidebar display (National positions)
                 mapData.add(row);
             }
         }
@@ -77,6 +110,35 @@ global without sharing class MarketingMapController {
             if (String.isNotBlank(record.Account__r.ShippingPostalCode)) parts.add(record.Account__r.ShippingPostalCode);
         }
         return String.join(parts, ', ');
+    }
+    
+    // Determine if a position should appear on the map
+    private static Boolean shouldPositionAppearOnMap(String placementType) {
+        if (String.isBlank(placementType)) return true;
+        
+        // National positions don't appear on map
+        return !placementType.contains('National');
+    }
+    
+    // Build display name based on position type
+    private static String buildDisplayName(Project__c record, String placementType) {
+        if (String.isBlank(placementType)) {
+            return record.Name;
+        }
+        
+        // For National positions, use Senior Director Territory from Account
+        if (placementType.contains('National') && record.Account__r != null && String.isNotBlank(record.Account__r.Senior_Director_Territory__c)) {
+            return record.Account__r.Senior_Director_Territory__c;
+        }
+        
+        // For other positions, use City, State format
+        if (record.Account__r != null) {
+            if (String.isNotBlank(record.Account__r.ShippingCity) && String.isNotBlank(record.Account__r.ShippingState)) {
+                return record.Account__r.ShippingCity + ', ' + record.Account__r.ShippingState;
+            }
+        }
+        
+        return record.Name;
     }
 
     // Convert degrees to radians
@@ -115,33 +177,46 @@ global without sharing class MarketingMapController {
                 Map<String, Object> m = new Map<String, Object>();
                 m.put('id', record.Id);
 
-                String displayName = '';
-                if (record.Account__r != null) {
-                    if (String.isNotBlank(record.Account__r.ShippingCity) && String.isNotBlank(record.Account__r.ShippingState)) {
-                        displayName = record.Account__r.ShippingCity + ', ' + record.Account__r.ShippingState;
-                    }
-                }
-                if (String.isBlank(displayName)) {
-                    displayName = record.Name;
-                }
+                String placementType = record.Employee_Placement_Type__c;
+                Boolean shouldShowOnMap = shouldPositionAppearOnMap(placementType);
+                
+                String displayName = buildDisplayName(record, placementType);
                 m.put('name', displayName);
-                m.put('address', buildAddressString(record));
                 m.put('startDate', null);
                 m.put('endDate', null);
                 m.put('type', 'Employee Placement Project');
-                m.put('placementType', record.Employee_Placement_Type__c);
+                m.put('placementType', placementType);
                 m.put('description', 'Employee placement project');
                 m.put('indeedLink', record.Indeed_Link__c);
+                m.put('shouldShowOnMap', shouldShowOnMap);
+                
+                // Add postal code for info window
+                String postalCode = '';
+                if (record.Account__r != null && String.isNotBlank(record.Account__r.ShippingPostalCode)) {
+                    postalCode = record.Account__r.ShippingPostalCode;
+                }
+                m.put('postalCode', postalCode);
 
-                m.put('location', buildAddressString(record));
+                String location = '';
+                if (shouldShowOnMap) {
+                    location = buildAddressString(record);
+                } else if (record.Account__r != null && String.isNotBlank(record.Account__r.Senior_Director_Territory__c)) {
+                    // For National positions, use Senior Director Territory from Account
+                    location = record.Account__r.Senior_Director_Territory__c;
+                }
+                m.put('address', location);
+                m.put('location', location);
 
-                if (record.Account__r != null && record.Account__r.geopointe__Geocode__r != null &&
+                // Only add coordinates if it should show on map
+                if (shouldShowOnMap && record.Account__r != null && record.Account__r.geopointe__Geocode__r != null &&
                     record.Account__r.geopointe__Geocode__r.geopointe__Latitude__c != null &&
                     record.Account__r.geopointe__Geocode__r.geopointe__Longitude__c != null) {
                     m.put('lat', record.Account__r.geopointe__Geocode__r.geopointe__Latitude__c);
                     m.put('lng', record.Account__r.geopointe__Geocode__r.geopointe__Longitude__c);
-                    mapData.add(m);
                 }
+                
+                // Add to map data for sidebar display (regardless of map visibility)
+                mapData.add(m);
             }
 
             Map<String, Object> result = new Map<String, Object>{ 'records' => mapData, 'center' => null };
@@ -160,12 +235,11 @@ global without sharing class MarketingMapController {
             }
 
             // Build WHERE clause for test vs production
-            String whereCore = BYPASS_RECORDTYPE_FILTER
-                ? 'Completion_Status__c = \'Pending\' AND Account__r.geopointe__Geocode__c != null'
-                : 'Completion_Status__c = \'Pending\' ' +
-                  'AND Account__r.geopointe__Geocode__c != null ' +
-                  'AND Account__r.geopointe__Geocode__r.geopointe__Latitude__c != null ' +
-                  'AND Account__r.geopointe__Geocode__r.geopointe__Longitude__c != null';
+            // Always check for lat/lng to ensure data quality
+            String whereCore = 'Completion_Status__c = \'Pending\' ' +
+                'AND Account__r.geopointe__Geocode__c != null ' +
+                'AND Account__r.geopointe__Geocode__r.geopointe__Latitude__c != null ' +
+                'AND Account__r.geopointe__Geocode__r.geopointe__Longitude__c != null';
 
             String whereClause = BYPASS_RECORDTYPE_FILTER
                 ? whereCore
@@ -175,6 +249,7 @@ global without sharing class MarketingMapController {
                 'SELECT Id, Name, Employee_Placement_Type__c, Indeed_Link__c, ' +
                 '       Account__r.ShippingStreet, Account__r.ShippingCity, ' +
                 '       Account__r.ShippingState, Account__r.ShippingPostalCode, ' +
+                '       Account__r.Senior_Director_Territory__c, ' +
                 '       Account__r.geopointe__Geocode__r.geopointe__Latitude__c, ' +
                 '       Account__r.geopointe__Geocode__r.geopointe__Longitude__c ' +
                 'FROM Project__c WHERE ' + whereClause + ' LIMIT 5000';

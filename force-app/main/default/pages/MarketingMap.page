@@ -75,6 +75,11 @@
                 gap: 12px;
             }
             
+            .legend-item .legend-marker {
+                display: block;
+                box-sizing: border-box;
+            }
+            
             .legend-item:hover {
                 background: #f8f9fa;
             }
@@ -87,10 +92,73 @@
                 flex-shrink: 0;
                 border: 2px solid #fff;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                min-width: 12px;
+                min-height: 12px;
+                max-width: 12px;
+                max-height: 12px;
+            }
+            
+            .legend-section {
+                border-bottom: 2px solid #e0e0e0;
+                margin-bottom: 8px;
+            }
+            
+            .legend-section:last-child {
+                border-bottom: none;
+            }
+            
+            .legend-section-header {
+                padding: 14px 20px;
+                background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                border-bottom: 2px solid #1a252f;
+                font-weight: 800;
+                font-size: 14px;
+                color: #ffffff;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .legend-section-header:hover {
+                background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            }
+            
+            .legend-section-collapse-icon {
+                font-size: 14px;
+                transition: transform 0.2s;
+                color: #ffffff;
+                font-weight: bold;
+            }
+            
+            .legend-section-count {
+                background: rgba(255, 255, 255, 0.2);
+                color: #ffffff;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 11px;
+                font-weight: 600;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+            
+            .legend-section-content {
+                max-height: 2000px;
+                overflow: hidden;
+                transition: max-height 0.3s ease-out;
+            }
+            
+            .legend-section-content-collapsed {
+                max-height: 0;
             }
             
             .legend-group {
-                border-bottom: 1px solid #e0e0e0;
+                border-bottom: 1px solid #f0f0f0;
             }
             
             .legend-group:last-child {
@@ -99,29 +167,43 @@
             
             .legend-group-header {
                 padding: 16px 20px;
-                background: #f8f9fa;
-                border-bottom: 1px solid #e0e0e0;
+                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                border-bottom: 1px solid #dee2e6;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                font-weight: 600;
-                font-size: 14px;
-                color: #1a1a1a;
-                transition: background 0.2s;
-            }
-            
-            .legend-group-header:hover {
-                background: #e9ecef;
+                font-weight: 700;
+                font-size: 15px;
+                color: #2c3e50;
+                transition: all 0.3s ease;
+                border-left: 4px solid transparent;
             }
             
             .legend-group-header .group-marker {
-                width: 16px;
-                height: 16px;
+                display: block;
+                box-sizing: border-box;
+            }
+            
+            .legend-group-header:hover {
+                background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+                border-left-color: #007bff;
+                transform: translateX(2px);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            
+            .legend-group-header .group-marker {
+                width: 18px;
+                height: 18px;
                 border-radius: 50%;
                 margin-right: 12px;
-                border: 2px solid #fff;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                border: 3px solid #ffffff;
+                box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+                min-width: 18px;
+                min-height: 18px;
+                max-width: 18px;
+                max-height: 18px;
+                flex-shrink: 0;
             }
             
             .legend-group-controls {
@@ -198,12 +280,25 @@
                 flex: 1;
             }
             
+            .legend-item-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+            }
+            
+            .legend-item-header .legend-item-name {
+                flex: 1;
+                margin-bottom: 0;
+            }
+            
             .legend-item-name {
                 font-weight: 500;
                 color: #1a1a1a;
                 margin-bottom: 2px;
                 font-size: 14px;
             }
+            
             
             .legend-item-details {
                 font-size: 12px;
@@ -242,6 +337,7 @@
                 font-size: 14px;
             }
             
+            
             .info-window-detail {
                 font-size: 12px;
                 color: #666;
@@ -257,6 +353,35 @@
                 font-size: 10px;
                 font-weight: 500;
                 margin-top: 4px;
+            }
+            
+            .info-window-link {
+                margin-top: 8px;
+            }
+            
+            
+            .open-link-btn {
+                display: inline-block;
+                background: #2557a7;
+                color: #ffffff;
+                padding: 3px 8px;
+                border-radius: 12px;
+                font-size: 10px;
+                font-weight: 600;
+                text-decoration: none !important;
+                transition: all 0.2s ease;
+                border: none;
+                cursor: pointer;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            
+            .open-link-btn:hover {
+                background: #1e4a8c;
+                color: #ffffff !important;
+                text-decoration: none !important;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             }
         </style>
         
@@ -327,41 +452,32 @@
             var markersByGroup = {}; // Store markers by placement type group
             var hiddenGroups = new Set(); // Track hidden groups
             
-            // Dynamic color assignment
-            var availableColors = [
-                '#dc3545', // Red (value 1)
-                '#007bff', // Blue (value 2)  
-                '#28a745', // Green (value 3)
-                '#ffc107', // Yellow (value 4)
-                '#fd7e14', // Orange (value 5)
-                '#6f42c1', // Purple (value 6)
-                '#20c997', // Teal (value 7)
-                '#e83e8c'  // Pink (value 8)
-            ];
+            // Color assignments for new grouping values
+            var placementTypeToColorMap = {
+                // Section 1: Local Positions
+                'Radiation Therapist Technologist': '#dc3545', // Red
+                'Clerical Support': '#007bff', // Blue
+                
+                // Section 2: Travel Positions
+                'PRN Traveling Radiation Therapist (Local)': '#28a745', // Green
+                'Full-Time Traveling Radiation Therapist (Local)': '#ffc107', // Yellow
+                'PRN Traveling Radiation Therapist (National)': '#fd7e14', // Orange
+                'Full-Time Traveling Radiation Therapist (National)': '#6f42c1', // Purple
+                
+                // Section 3: Corporate Positions
+                'SkinCure HQ': '#20c997' // Teal
+            };
             
-            var placementTypeToColorMap = {}; // Dynamic mapping of placement types to colors
-            var uniquePlacementTypes = []; // Track unique placement types in order
-            var defaultColor = '#6c757d'; // Gray for unknown/null
+            var defaultColor = '#6c757d'; // Gray for unknown/other values
             
             function assignColorToPlacementType(placementType) {
                 // Handle null values
                 if (!placementType || placementType === '' || placementType === null || placementType === undefined) {
-                    placementType = 'Unknown';
+                    placementType = 'Other';
                 }
                 
-                // Assign color to new placement type
-                if (!placementTypeToColorMap[placementType]) {
-                    if (uniquePlacementTypes.length < availableColors.length) {
-                        var colorIndex = uniquePlacementTypes.length;
-                        placementTypeToColorMap[placementType] = availableColors[colorIndex];
-                        uniquePlacementTypes.push(placementType);
-                    } else {
-                        // Use default color
-                        placementTypeToColorMap[placementType] = defaultColor;
-                    }
-                }
-                
-                return placementTypeToColorMap[placementType];
+                // Return assigned color or default for unknown values
+                return placementTypeToColorMap[placementType] || defaultColor;
             }
             
             function getPlacementTypeColor(placementType) {
@@ -465,6 +581,10 @@
                 }
                 
                 markers.forEach(function(markerData, index) {
+                    // Only create markers for positions that should show on map
+                    if (!markerData.shouldShowOnMap) {
+                        return;
+                    }
                     
                     // Validate marker data
                     if (!markerData.lat || !markerData.lng || 
@@ -477,7 +597,6 @@
                         lat: parseFloat(markerData.lat),
                         lng: parseFloat(markerData.lng)
                     };
-                    
                     
                     // Get color for this placement type
                     var markerColor = getPlacementTypeColor(markerData.placementType);
@@ -493,14 +612,14 @@
                     };
                     
                     // Check if this group is hidden
-                    var placementType = markerData.placementType || 'Unknown';
+                    var placementType = markerData.placementType || 'Other';
                     var isHidden = hiddenGroups.has(placementType);
                     
                     // Create marker with colored icon
                     var marker = new google.maps.Marker({
                         position: position,
                         map: isHidden ? null : map, // Don't show on map if group is hidden
-                        title: markerData.name, // This will show "City, ST" format
+                        title: markerData.name,
                         icon: markerIcon
                     });
                     
@@ -520,11 +639,7 @@
                     
                     // Add click listener for info window
                     var content = '<div class="custom-info-window">';
-                    if (markerData.indeedLink) {
-                        content += '<div class="info-window-title"><a href="' + markerData.indeedLink + '" target="_blank" style="color: #1a1a1a; text-decoration: none;">' + markerData.name + '</a></div>';
-                    } else {
-                        content += '<div class="info-window-title">' + markerData.name + '</div>';
-                    }
+                    content += '<div class="info-window-title">' + markerData.name + '</div>';
                     
                     if (markerData.startDate) {
                         content += '<div class="info-window-detail"><strong>Start:</strong> ' + formatDate(markerData.startDate) + '</div>';
@@ -532,11 +647,20 @@
                     if (markerData.endDate) {
                         content += '<div class="info-window-detail"><strong>End:</strong> ' + formatDate(markerData.endDate) + '</div>';
                     }
-                    if (markerData.address) {
-                        content += '<div class="info-window-detail"><strong>Address:</strong> ' + markerData.address + '</div>';
+                    if (markerData.postalCode) {
+                        content += '<div class="info-window-detail"><strong>Postal Code:</strong> ' + markerData.postalCode + '</div>';
                     }
                     if (markerData.placementType) {
                         content += '<div class="info-window-type" style="background-color: ' + getPlacementTypeColor(markerData.placementType) + '; color: white;">' + markerData.placementType + '</div>';
+                    }
+                    
+                    if (markerData.indeedLink && markerData.indeedLink.trim() !== '') {
+                        var linkUrl = markerData.indeedLink;
+                        // Ensure URL has protocol
+                        if (!linkUrl.startsWith('http://') && !linkUrl.startsWith('https://')) {
+                            linkUrl = 'https://' + linkUrl;
+                        }
+                        content += '<div class="info-window-link"><a href="' + linkUrl + '" target="_blank" class="open-link-btn">Open Link</a></div>';
                     }
                     
                     content += '</div>';
@@ -558,7 +682,6 @@
                     });
                 });
                 
-                
                 // Keep the map showing the whole US - don't auto-fit to markers
                 // This ensures the full US is always visible
             }
@@ -570,14 +693,9 @@
                 googleMarkers = [];
                 recordMarkers = {};
                 markersByGroup = {};
-                
-                // Reset color assignments for fresh start
-                placementTypeToColorMap = {};
-                uniquePlacementTypes = [];
             }
             
             function updateLegend() {
-                
                 var totalCountElement = document.getElementById('totalCount');
                 var legendListElement = document.getElementById('legendList');
                 
@@ -586,16 +704,32 @@
                     return;
                 }
                 
-                
                 if (!markers || markers.length === 0) {
                     legendListElement.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No positions to display</div>';
                     return;
                 }
                 
+                // Define the new grouping structure
+                var sections = {
+                    'Local Positions': [
+                        'Radiation Therapist Technologist',
+                        'Clerical Support'
+                    ],
+                    'Travel Positions': [
+                        'PRN Traveling Radiation Therapist (Local)',
+                        'Full-Time Traveling Radiation Therapist (Local)',
+                        'PRN Traveling Radiation Therapist (National)',
+                        'Full-Time Traveling Radiation Therapist (National)'
+                    ],
+                    'Corporate Positions': [
+                        'SkinCure HQ'
+                    ]
+                };
+                
                 // Group markers by placement type
                 var groups = {};
                 markers.forEach(function(record) {
-                    var placementType = record.placementType || 'Unknown';
+                    var placementType = record.placementType || 'Other';
                     if (!groups[placementType]) {
                         groups[placementType] = [];
                     }
@@ -603,62 +737,205 @@
                 });
                 
                 var html = '';
-                Object.keys(groups).sort().forEach(function(placementType) {
-                    var groupMarkers = groups[placementType];
-                    var groupColor = getPlacementTypeColor(placementType);
-                    var isHidden = hiddenGroups.has(placementType);
+                
+                // Render each section
+                Object.keys(sections).forEach(function(sectionName) {
+                    var sectionTypes = sections[sectionName];
+                    var sectionHasData = false;
+                    var sectionCount = 0;
                     
-                    html += '<div class="legend-group' + (isHidden ? ' legend-group-collapsed legend-group-hidden' : '') + '" data-group="' + placementType + '">';
+                    // Check if section has any data and count records
+                    sectionTypes.forEach(function(type) {
+                        if (groups[type] && groups[type].length > 0) {
+                            sectionHasData = true;
+                            sectionCount += groups[type].length;
+                        }
+                    });
                     
-                    // Group header
-                    html += '<div class="legend-group-header" onclick="toggleGroupCollapse(\'' + placementType + '\')">';
-                    html += '<div style="display: flex; align-items: center;">';
-                    html += '<div class="group-marker" style="background-color: ' + groupColor + ';"></div>';
-                    html += '<span>' + placementType + '</span>';
+                    if (!sectionHasData) return;
+                    
+                    // Determine if this section should be collapsed by default
+                    var isOtherSection = sectionName === 'Other';
+                    var sectionCollapsed = isOtherSection; // Only collapse Other section
+                    
+                    // Section header
+                    html += '<div class="legend-section' + (sectionCollapsed ? ' legend-section-collapsed' : '') + '" data-section="' + sectionName + '">';
+                    html += '<div class="legend-section-header" onclick="toggleSectionCollapse(\'' + sectionName + '\')">';
+                    html += '<div style="display: flex; align-items: center; gap: 8px;">';
+                    html += '<span>' + sectionName + '</span>';
+                    html += '<span class="legend-section-count">' + sectionCount + '</span>';
                     html += '</div>';
-                    html += '<div class="legend-group-controls">';
-                    html += '<span class="legend-group-count">' + groupMarkers.length + '</span>';
-                    html += '<button class="legend-control-btn" onclick="toggleGroupVisibility(\'' + placementType + '\', event)" title="Hide/Unhide">' + (isHidden ? 'Unhide' : 'Hide') + '</button>';
-                    html += '<span class="legend-group-collapse-icon">▼</span>';
-                    html += '</div>';
+                    html += '<span class="legend-section-collapse-icon">' + (sectionCollapsed ? '▶' : '▼') + '</span>';
                     html += '</div>';
                     
-                    // Group items
-                    html += '<div class="legend-group-items">';
-                    groupMarkers.forEach(function(record) {
-                        html += '<div class="legend-item" onclick="selectRecord(\'' + record.id + '\')">';
-                        html += '<div class="legend-marker" style="background-color: ' + groupColor + ';"></div>';
-                        html += '<div class="legend-item-info">';
-                        if (record.indeedLink) {
-                            html += '<div class="legend-item-name"><a href="' + record.indeedLink + '" target="_blank" style="color: #1a1a1a; text-decoration: none;">' + record.name + '</a></div>';
-                        } else {
+                    // Section content
+                    html += '<div class="legend-section-content' + (sectionCollapsed ? ' legend-section-content-collapsed' : '') + '">';
+                    
+                    // Render groups within this section
+                    sectionTypes.forEach(function(placementType) {
+                        if (!groups[placementType] || groups[placementType].length === 0) return;
+                        
+                        var groupMarkers = groups[placementType];
+                        var groupColor = getPlacementTypeColor(placementType);
+                        var isHidden = hiddenGroups.has(placementType);
+                        var isCorporate = sectionName === 'Corporate Positions';
+                        var isCollapsed = isHidden || (!isCorporate && isHidden);
+                        
+                        html += '<div class="legend-group' + (isCollapsed ? ' legend-group-collapsed' : '') + (isHidden ? ' legend-group-hidden' : '') + '" data-group="' + placementType + '">';
+                        
+                        // Group header
+                        html += '<div class="legend-group-header" onclick="toggleGroupCollapse(\'' + placementType + '\')">';
+                        html += '<div style="display: flex; align-items: center;">';
+                        html += '<div class="group-marker" style="background-color: ' + groupColor + ';"></div>';
+                        html += '<span>' + placementType + '</span>';
+                        html += '</div>';
+                        html += '<div class="legend-group-controls">';
+                        html += '<span class="legend-group-count">' + groupMarkers.length + '</span>';
+                        
+                        // Only show hide/unhide button for positions that can appear on map
+                        if (placementType.indexOf('National') === -1) {
+                            html += '<button class="legend-control-btn" onclick="toggleGroupVisibility(\'' + placementType + '\', event)" title="Hide/Unhide">' + (isHidden ? 'Unhide' : 'Hide') + '</button>';
+                        }
+                        
+                        html += '<span class="legend-group-collapse-icon">▼</span>';
+                        html += '</div>';
+                        html += '</div>';
+                        
+                        // Group items
+                        html += '<div class="legend-group-items">';
+                        groupMarkers.forEach(function(record) {
+                            html += '<div class="legend-item" onclick="selectRecord(\'' + record.id + '\')">';
+                            html += '<div class="legend-marker" style="background-color: ' + groupColor + ';"></div>';
+                            html += '<div class="legend-item-info">';
+                            html += '<div class="legend-item-header">';
                             html += '<div class="legend-item-name">' + record.name + '</div>';
-                        }
-                        
-                        var details = [];
-                        if (record.startDate) {
-                            details.push('Start: ' + formatDate(record.startDate));
-                        }
-                        
-                        if (details.length > 0) {
-                            html += '<div class="legend-item-details">' + details.join(' • ') + '</div>';
-                        }
-                        
+                            
+                            if (record.indeedLink && record.indeedLink.trim() !== '') {
+                                var linkUrl = record.indeedLink;
+                                // Ensure URL has protocol
+                                if (!linkUrl.startsWith('http://') && !linkUrl.startsWith('https://')) {
+                                    linkUrl = 'https://' + linkUrl;
+                                }
+                                html += '<a href="' + linkUrl + '" target="_blank" class="open-link-btn">Open Link</a>';
+                            }
+                            html += '</div>';
+                            
+                            var details = [];
+                            if (record.startDate) {
+                                details.push('Start: ' + formatDate(record.startDate));
+                            }
+                            
+                            if (details.length > 0) {
+                                html += '<div class="legend-item-details">' + details.join(' • ') + '</div>';
+                            }
+                            
+                            html += '</div>';
+                            html += '</div>';
+                        });
                         html += '</div>';
                         html += '</div>';
                     });
-                    html += '</div>';
                     
-                    html += '</div>';
+                    html += '</div>'; // Close section content
+                    html += '</div>'; // Close section
                 });
                 
+                // Handle any remaining groups not in the defined sections (Other)
+                var otherGroups = {};
+                Object.keys(groups).forEach(function(placementType) {
+                    var isInSection = false;
+                    Object.values(sections).forEach(function(sectionTypes) {
+                        if (sectionTypes.indexOf(placementType) !== -1) {
+                            isInSection = true;
+                        }
+                    });
+                    if (!isInSection) {
+                        otherGroups[placementType] = groups[placementType];
+                    }
+                });
                 
+                if (Object.keys(otherGroups).length > 0) {
+                    // Count total records in Other section
+                    var otherSectionCount = 0;
+                    Object.keys(otherGroups).forEach(function(type) {
+                        otherSectionCount += otherGroups[type].length;
+                    });
+                    
+                    html += '<div class="legend-section legend-section-collapsed" data-section="Other">';
+                    html += '<div class="legend-section-header" onclick="toggleSectionCollapse(\'Other\')">';
+                    html += '<div style="display: flex; align-items: center; gap: 8px;">';
+                    html += '<span>Other</span>';
+                    html += '<span class="legend-section-count">' + otherSectionCount + '</span>';
+                    html += '</div>';
+                    html += '<span class="legend-section-collapse-icon">▶</span>';
+                    html += '</div>';
+                    
+                    // Section content
+                    html += '<div class="legend-section-content legend-section-content-collapsed">';
+                    
+                    Object.keys(otherGroups).forEach(function(placementType) {
+                        var groupMarkers = otherGroups[placementType];
+                        var groupColor = getPlacementTypeColor(placementType);
+                        var isHidden = hiddenGroups.has(placementType);
+                        
+                        html += '<div class="legend-group' + (isHidden ? ' legend-group-collapsed legend-group-hidden' : '') + '" data-group="' + placementType + '">';
+                        
+                        // Group header
+                        html += '<div class="legend-group-header" onclick="toggleGroupCollapse(\'' + placementType + '\')">';
+                        html += '<div style="display: flex; align-items: center;">';
+                        html += '<div class="group-marker" style="background-color: ' + groupColor + ';"></div>';
+                        html += '<span>' + placementType + '</span>';
+                        html += '</div>';
+                        html += '<div class="legend-group-controls">';
+                        html += '<span class="legend-group-count">' + groupMarkers.length + '</span>';
+                        html += '<button class="legend-control-btn" onclick="toggleGroupVisibility(\'' + placementType + '\', event)" title="Hide/Unhide">' + (isHidden ? 'Unhide' : 'Hide') + '</button>';
+                        html += '<span class="legend-group-collapse-icon">▼</span>';
+                        html += '</div>';
+                        html += '</div>';
+                        
+                        // Group items
+                        html += '<div class="legend-group-items">';
+                        groupMarkers.forEach(function(record) {
+                            html += '<div class="legend-item" onclick="selectRecord(\'' + record.id + '\')">';
+                            html += '<div class="legend-marker" style="background-color: ' + groupColor + ';"></div>';
+                            html += '<div class="legend-item-info">';
+                            html += '<div class="legend-item-header">';
+                            html += '<div class="legend-item-name">' + record.name + '</div>';
+                            
+                            if (record.indeedLink && record.indeedLink.trim() !== '') {
+                                var linkUrl = record.indeedLink;
+                                // Ensure URL has protocol
+                                if (!linkUrl.startsWith('http://') && !linkUrl.startsWith('https://')) {
+                                    linkUrl = 'https://' + linkUrl;
+                                }
+                                html += '<a href="' + linkUrl + '" target="_blank" class="open-link-btn">Open Link</a>';
+                            }
+                            html += '</div>';
+                            
+                            var details = [];
+                            if (record.startDate) {
+                                details.push('Start: ' + formatDate(record.startDate));
+                            }
+                            
+                            if (details.length > 0) {
+                                html += '<div class="legend-item-details">' + details.join(' • ') + '</div>';
+                            }
+                            
+                            html += '</div>';
+                            html += '</div>';
+                        });
+                        html += '</div>';
+                        html += '</div>';
+                    });
+                    
+                    html += '</div>'; // Close section content
+                    html += '</div>'; // Close section
+                }
                 
                 legendListElement.innerHTML = html;
                 
                 // Update the count to reflect currently visible markers
                 updateVisibleMarkersCount();
-                
             }
             
             function selectRecord(recordId) {
@@ -669,6 +946,10 @@
                     map.setCenter(position);
                     map.setZoom(12);
                     google.maps.event.trigger(marker, 'click');
+                } else {
+                    // For records that don't appear on map (National positions), just center on US
+                    map.setCenter({lat: 39.8283, lng: -98.5795});
+                    map.setZoom(4);
                 }
             }
             
@@ -693,8 +974,32 @@
                 }
             }
             
+            function toggleSectionCollapse(sectionName) {
+                var sectionElement = document.querySelector('[data-section="' + sectionName + '"]');
+                if (sectionElement) {
+                    sectionElement.classList.toggle('legend-section-collapsed');
+                    
+                    // Update the collapse icon
+                    var icon = sectionElement.querySelector('.legend-section-collapse-icon');
+                    if (icon) {
+                        icon.textContent = sectionElement.classList.contains('legend-section-collapsed') ? '▶' : '▼';
+                    }
+                    
+                    // Toggle the content visibility
+                    var content = sectionElement.querySelector('.legend-section-content');
+                    if (content) {
+                        content.classList.toggle('legend-section-content-collapsed');
+                    }
+                }
+            }
+            
             function toggleGroupVisibility(placementType, event) {
                 event.stopPropagation(); // Prevent collapse toggle
+                
+                // Don't allow hiding National positions since they don't appear on map anyway
+                if (placementType.indexOf('National') !== -1) {
+                    return;
+                }
                 
                 var isCurrentlyHidden = hiddenGroups.has(placementType);
                 
@@ -743,8 +1048,9 @@
                 
                 // Count all markers that are currently visible on the map
                 markers.forEach(function(marker) {
-                    var placementType = marker.placementType || 'Unknown';
-                    if (!hiddenGroups.has(placementType)) {
+                    var placementType = marker.placementType || 'Other';
+                    // Only count markers that should show on map and are not hidden
+                    if (marker.shouldShowOnMap && !hiddenGroups.has(placementType)) {
                         visibleCount++;
                     }
                 });
